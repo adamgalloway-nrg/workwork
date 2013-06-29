@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<!--[if IE 8]>         <html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Foundation 4</title>
+
+    
+    <link rel="stylesheet" href="{{STATIC_URL}}css/foundation.css" />
+    
+
+    <script src="{{STATIC_URL}}js/vendor/custom.modernizr.js"></script>
+    <title>Manage Clients</title>
+  </head> 
+  <body>
+    <nav>
+      <ul>
+        <li><a href="/employee">Manage Employees</a></li>
+        <li><a href="/customer">Manage Customers</a></li>
+        <li><a href="/client">Manage Clients</a></li>
+        <li><a href="/project">Manage Projects</a></li>
+        <li><a href="/task">Manage Tasks</a></li>
+      </ul>
+    </nav>
+
+    <section>
+      <div class="row">
+          <h4>Add a Client</h4>
+      </div>
+
+      <form method="post" action="/">
+          {% csrf_token %}
+          <div class="row">
+              <input type="text" name="name" placeholder="Client Name" required />
+          </div>
+          <div class="row">
+              <input type="submit" value="Add Client" />
+          </div>
+        </form>
+
+    </section>
+
+    <section>
+      <div class="row">
+          <h4>Clients</h4>
+      </div>
+      {% for client in clients %}
+      <div class="row" data-id="{{client.id}}">
+        <div class="large-9 columns">{{ client.name }}</div>
+        <div class="large-3 columns">
+          <button type="button" class="edit">Edit</button>
+          <button type="button" class="delete">Delete</button>
+        </div>
+      </div>
+      {% endfor %}
+    </section>
+  </body>
+</html>

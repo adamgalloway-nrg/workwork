@@ -22,6 +22,12 @@ lib64
 # Installer logs
 pip-log.txt
 
+# temp database
+mydatabase
+
+# client secrets
+client_secrets.json
+
 # Unit test / coverage reports
 .coverage
 .tox

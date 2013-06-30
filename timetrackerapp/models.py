@@ -2,7 +2,6 @@ from mongoengine import *
 from timetracker.settings import DBNAME
 
 # Create your models here.
-
 connect(DBNAME)
 
 class Post(Document):
@@ -84,3 +83,25 @@ class WeekEntry(Document):
 	employee = EmailField(max_length=120, required=True)
 	weekId = LongField(required=True)
 	complete = BooleanField(required=True, default=False)
+
+import pickle
+import base64
+
+from django.contrib import admin
+from django.contrib.auth.models import User
+from django.db import models
+
+from oauth2client.django_orm import FlowField
+from oauth2client.django_orm import CredentialsField
+
+
+class CredentialsModel(models.Model):
+  id = models.ForeignKey(User, primary_key=True)
+  credential = CredentialsField()
+
+
+class CredentialsAdmin(admin.ModelAdmin):
+    pass
+
+
+admin.site.register(CredentialsModel, CredentialsAdmin)

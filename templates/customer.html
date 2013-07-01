@@ -1,29 +1,6 @@
-<!DOCTYPE html>
-<!--[if IE 8]>         <html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
-
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>Foundation 4</title>
-
-    
-    <link rel="stylesheet" href="{{STATIC_URL}}css/foundation.css" />
-    
-
-    <script src="{{STATIC_URL}}js/vendor/custom.modernizr.js"></script>
-    <title>Manage Customers</title>
-  </head> 
-  <body>
-    <nav>
-      <ul>
-        <li><a href="/employee">Manage Employees</a></li>
-        <li><a href="/customer">Manage Customers</a></li>
-        <li><a href="/client">Manage Clients</a></li>
-        <li><a href="/project">Manage Projects</a></li>
-        <li><a href="/task">Manage Tasks</a></li>
-      </ul>
-    </nav>
+{% extends "base.html" %}
+{% block title %}Manage Customers{% endblock %}
+{% block content %}
     <h1>Add a Customer</h1>
     <form method="post" action="/">
       {% csrf_token %}
@@ -44,5 +21,4 @@
       <div><button type="button" class="delete">Delete</button></div>
     </div>
     {% endfor %}
-  </body>
-</html>
+{% endblock %}

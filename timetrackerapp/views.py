@@ -1,81 +1,130 @@
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.views.generic import ListView
 from models import Post
 from models import Client, Comment, Customer, Employee, PaidTimeOff, Project, TaskDefinition, TimeEntry, WeekEntry
 import datetime
-
+from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
+import calendar
+
+
+
+
+def get_current_weekId():
+    today = datetime.datetime.now()
+
+    calendar.setfirstweekday(calendar.SUNDAY)
+    monthcalendar = calendar.monthcalendar(today.year, today.month)
+
+    day_of_week = today.weekday()
+    if day_of_week == 6:
+        day_of_week == 0
+    else:
+        day_of_week += 1
+
+    weeks = monthcalendar
+
+    weekCount = 0
+    for week in weeks:
+        weekCount += 1
+        if week[day_of_week] == today.day:
+            if week[0] == 0:
+                #get week number of prev month, year
+                date = datetime.datetime(today.year,today.month, 1) - datetime.timedelta(days=1)
+                prev_monthcalendar = calendar.monthcalendar(date.year, date.month)
+                weekVal = len(prev_monthcalendar)
+                return "%04d%02d%d" % (date.year,date.month,weekVal)
+            else:
+                return "%04d%02d%d" % (today.year,today.month,weekCount)
+
+
+def get_prev_weekId(weekId):
+    week_id_str = str(weekId)
+    year = int(week_id_str[:4])
+    month = int(week_id_str[4:6])
+    prev_week = int(week_id_str[6:7]) - 1
+
+    calendar.setfirstweekday(calendar.SUNDAY)
+
+    monthcalendar = calendar.monthcalendar(year, month)
+    if prev_week == 0 or monthcalendar[prev_week - 1][0] == 0:
+        #get week number of prev month, year
+        date = datetime.datetime(year,month,1) - datetime.timedelta(days=1)
+        prev_monthcalendar = calendar.monthcalendar(date.year, date.month)
+        weekVal = len(prev_monthcalendar)
+        return "%04d%02d%d" % (date.year,date.month,weekVal)
+    else:
+        return "%04d%02d%d" % (year,month,prev_week)
+
+
+def get_next_weekId(weekId):
+    week_id_str = str(weekId)
+    year = int(week_id_str[:4])
+    month = int(week_id_str[4:6])
+    next_week = int(week_id_str[6:7]) + 1
+
+    calendar.setfirstweekday(calendar.SUNDAY)
+
+    monthcalendar = calendar.monthcalendar(year, month)
+    if next_week > len(monthcalendar):
+        #get week number of prev month, year
+        if month == 12:
+            month = 1
+            year += 1
+        else:
+            month += 1
+
+        next_monthcalendar = calendar.monthcalendar(year, month)
+        if next_monthcalendar[0][0] != 0:
+            return "%04d%02d%d" % (year,month,1)
+        else:
+             return "%04d%02d%d" % (year,month,2)
+    else:
+        return "%04d%02d%d" % (year,month,next_week)
+
+def get_employee(request):
+    if 'employee' not in request.session:
+        request.session['employee'] = Employee.objects.get(email=request.user.email)
+    return request.session['employee']
+
 
 @login_required
 def index(request):
-    if request.method == 'POST':
-        # save new post
-        title = request.POST['title']
-        content = request.POST['content']
+    employee = get_employee(request)
 
-        post = Post(title=title)
-        post.last_update = datetime.datetime.now() 
-        post.content = content
-        post.save()
+    if 'weekId' not in request.REQUEST or not request.REQUEST['weekId']:
+        return redirect('/?weekId=' + get_current_weekId())
+    else:
+        weekId = request.REQUEST['weekId']
+        params = {
+            'entries': TimeEntry.objects(employee=employee.email, weekId=weekId),
+            'prev_weekId': get_prev_weekId(weekId),
+            'next_weekId': get_next_weekId(weekId)
+        }
+        return render_to_response('index.html', params, context_instance=RequestContext(request))
 
-    # Get all posts from DB
-    posts = Post.objects 
-    return render_to_response('index.html', {'Posts': posts}, context_instance=RequestContext(request))
-
-
-def update(request):
-    id = eval("request." + request.method + "['id']")
-    post = Post.objects(id=id)[0]
-    
-    if request.method == 'POST':
-        # update field values and save to mongo
-        post.title = request.POST['title']
-        post.last_update = datetime.datetime.now() 
-        post.content = request.POST['content']
-        post.save()
-        template = 'index.html'
-        params = {'Posts': Post.objects} 
-
-    elif request.method == 'GET':
-        template = 'update.html'
-        params = {'post':post}
-   
-    return render_to_response(template, params, context_instance=RequestContext(request))
-                              
-
-def delete(request):
-    id = eval("request." + request.method + "['id']")
-
-    if request.method == 'POST':
-        post = Post.objects(id=id)[0]
-        post.delete() 
-        template = 'index.html'
-        params = {'Posts': Post.objects} 
-    elif request.method == 'GET':
-        template = 'delete.html'
-        params = { 'id': id } 
-
-    return render_to_response(template, params, context_instance=RequestContext(request))
-
+@login_required
 def manage_customers(request):
 
     return render_to_response('customer.html', {'customers': Customer.objects}, context_instance=RequestContext(request))
-    # response_data['result'] = 'data'
-    # response_data['message'] = 'some other data'
-    # return HttpResponse(json.dumps(response_data), mimetype="application/json")
 
+@login_required
 def manage_clients(request):
 
     return render_to_response('client.html', {'clients': Client.objects}, context_instance=RequestContext(request))
 
+@login_required
 def manage_projects(request):
 
     return render_to_response('project.html', {'projects': Project.objects}, context_instance=RequestContext(request))
 
+@login_required
 def manage_tasks(request):
 
     return render_to_response('task.html', {'tasks': TaskDefinition.objects}, context_instance=RequestContext(request))
 
+@login_required
 def manage_employees(request):
 
     return render_to_response('employee.html', {'employees': Employee.objects}, context_instance=RequestContext(request))

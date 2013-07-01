@@ -1,4 +1,5 @@
 import os
+import json
 
 # Django settings for timetracker project.
 
@@ -188,9 +189,14 @@ AUTHENTICATION_BACKENDS = (
     'mongo_auth.backends.LazyUserBackend',
 )
 
-GOOGLE_CLIENT_ID = "<enter client id>"
-GOOGLE_CLIENT_SECRET = "<enter client secret>"
-GOOGLE_APPS_DOMAIN = "<enter domain>"
+# load secrets from json
+json_data = open('client_secrets.json')
+client_secrets = json.load(json_data)
+json_data.close()
+
+GOOGLE_CLIENT_ID = client_secrets['web']['client_id']
+GOOGLE_CLIENT_SECRET = client_secrets['web']['client_secret']
+GOOGLE_APPS_DOMAIN = "<domain name here>"
 
 LOGIN_REDIRECT_URL = "/"
 LOGIN_URL = "/google/login"

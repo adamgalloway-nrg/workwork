@@ -18,6 +18,8 @@
 
 	<div class="row">
 		<div class="large-12 columns">
+			<a href="/?weekId={{prev_weekId}}">Prev</a>
+			<a href="/?weekId={{next_weekId}}">Next</a>
 			<h2>Welcome to Foundation</h2>
 			<p>This is version 4.2.3.</p>
 			<form method="POST" action="/logout/">
@@ -27,6 +29,13 @@
 			<hr />
 		</div>
 	</div>
+
+	{% for entry in entries %}
+    <div class="row" data-id="{{entry.id}}">
+      <div>Date: {{ entry.date }}</div>
+      <div>Hours: {{ entry.durationInHours }}</div>
+    </div>
+    {% endfor %}
 
 	<div class="row">
 		<div class="large-8 columns">

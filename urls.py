@@ -32,8 +32,6 @@ urlpatterns = patterns('',
     url(r'^logout/$', 'mongo_auth.views.logout', name='logout'),
 
     url(r'^$', 'timetracker.timetrackerapp.views.index'),
-    url(r'^update/', 'timetracker.timetrackerapp.views.update'),
-    url(r'^delete/', 'timetracker.timetrackerapp.views.delete'),
     url(r'^client/', 'timetracker.timetrackerapp.views.manage_clients'),
     url(r'^customer/', 'timetracker.timetrackerapp.views.manage_customers'),
     url(r'^project/', 'timetracker.timetrackerapp.views.manage_projects'),

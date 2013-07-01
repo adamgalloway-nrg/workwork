@@ -13,8 +13,7 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'mydatabase'
+        'ENGINE': 'django.db.backends.dummy'
     }
 }
 
@@ -103,6 +102,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'mongo_auth.middleware.LazyUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
@@ -119,13 +119,17 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
+    #'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Uncomment the next line to enable the admin:
-    'django.contrib.admin',
+    #'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'django_browserid',
+    'mongo_auth',
+    'mongo_auth.contrib',
+    'sekizai',
     'timetracker.timetrackerapp'
 )
 
@@ -158,3 +162,35 @@ LOGGING = {
     }
 }
 
+#SESSION_ENGINE = 'mongoengine.django.sessions'
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.static",
+    "django.core.context_processors.tz",
+    "django.contrib.messages.context_processors.messages",
+    "django_browserid.context_processors.browserid",
+    "mongo_auth.contrib.context_processors.mongo_auth",
+    "sekizai.context_processors.sekizai"
+)
+
+AUTHENTICATION_BACKENDS = (
+    'mongo_auth.backends.MongoEngineBackend',
+    # 'mongo_auth.backends.FacebookBackend',
+    # 'mongo_auth.backends.TwitterBackend',
+    # 'mongo_auth.backends.FoursquareBackend',
+    'mongo_auth.backends.GoogleBackend',
+    'mongo_auth.backends.BrowserIDBackend',
+    'mongo_auth.backends.LazyUserBackend',
+)
+
+GOOGLE_CLIENT_ID = "<enter client id>"
+GOOGLE_CLIENT_SECRET = "<enter client secret>"
+GOOGLE_APPS_DOMAIN = "<enter domain>"
+
+LOGIN_REDIRECT_URL = "/"
+LOGIN_URL = "/google/login"

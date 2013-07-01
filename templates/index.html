@@ -20,6 +20,10 @@
 		<div class="large-12 columns">
 			<h2>Welcome to Foundation</h2>
 			<p>This is version 4.2.3.</p>
+			<form method="POST" action="/logout/">
+				{% csrf_token %}
+				<button type="submit">logout</button>
+			</form>
 			<hr />
 		</div>
 	</div>

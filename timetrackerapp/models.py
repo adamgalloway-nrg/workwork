@@ -84,24 +84,25 @@ class WeekEntry(Document):
 	weekId = LongField(required=True)
 	complete = BooleanField(required=True, default=False)
 
-import pickle
-import base64
+# REQUIRES SQLITE
+# import pickle
+# import base64
 
-from django.contrib import admin
-from django.contrib.auth.models import User
-from django.db import models
+# from django.contrib import admin
+# from django.contrib.auth.models import User
+# from django.db import models
 
-from oauth2client.django_orm import FlowField
-from oauth2client.django_orm import CredentialsField
-
-
-class CredentialsModel(models.Model):
-  id = models.ForeignKey(User, primary_key=True)
-  credential = CredentialsField()
+# from oauth2client.django_orm import FlowField
+# from oauth2client.django_orm import CredentialsField
 
 
-class CredentialsAdmin(admin.ModelAdmin):
-    pass
+# class CredentialsModel(models.Model):
+#   id = models.ForeignKey(User, primary_key=True)
+#   credential = CredentialsField()
 
 
-admin.site.register(CredentialsModel, CredentialsAdmin)
+# class CredentialsAdmin(admin.ModelAdmin):
+#     pass
+
+
+# admin.site.register(CredentialsModel, CredentialsAdmin)

@@ -195,7 +195,8 @@ def index(request):
             time_entry_formset = TimeEntryFormSet(request.POST, request.FILES)
             if time_entry_formset.is_valid():
                 # do something with the cleaned_data on the formsets.
-                print str(time_entry_formset)
+                #print str(time_entry_formset)
+                
 
                 pass
         else:

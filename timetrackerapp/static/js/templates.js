@@ -5,7 +5,7 @@ var timeEntryRowMarkup =
 			'<div class="task-name">{{taskName}}</div>'+
 			'<div class="task-description">{{taskDescription}}</div>'+
 		'</div>'+
-        '<input id="id_form-{{formId}}-taskDefinitionId" name="form-{{formId}}-taskDefinitionId" type="hidden" value="{{taskDefintionId}}">'+
+        '<input id="id_form-{{formId}}-taskDefinitionId" name="form-{{formId}}-taskDefinitionId" type="hidden" value="{{taskDefinitionId}}">'+
 		'<input id="id_form-{{formId}}-rowId" name="form-{{formId}}-rowId" type="hidden" value="">'+
 	'</div>'+
 	'<div class="row hours-row">'+

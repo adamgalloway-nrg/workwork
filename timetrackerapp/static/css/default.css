@@ -33,3 +33,12 @@ div.wed-total span,
 div.thu-total span,
 div.fri-total span,
 div.sat-total span { padding-right: 5px; }
+
+.select2-container .select2-choice {
+	padding-top: 0.625em;
+	padding-bottom: 0.5625em;
+	line-height: 1;
+	font-size: 0.8125em;
+	height: auto;
+	font-weight: bold;
+}

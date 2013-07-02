@@ -8,12 +8,14 @@
   <title>Enter Time</title>
 
   
+  <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.0/select2.min.css" />
   <link rel="stylesheet" href="{{STATIC_URL}}css/foundation.css" />
   <link rel="stylesheet" href="{{STATIC_URL}}css/default.css" />
   
 
   <script src="{{STATIC_URL}}js/vendor/custom.modernizr.js"></script>
   <script src="{{STATIC_URL}}js/moment.min.js"></script>
+
   <script src="http://twitter.github.com/hogan.js/builds/2.0.0/hogan-2.0.0.js"></script>
   <script src="{{STATIC_URL}}js/templates.js"></script>
 
@@ -28,7 +30,7 @@
 			<h2>Enter Time {{ rangeTitle }}</h2>
 			<form method="POST" action="/logout/">
 				{% csrf_token %}
-				<button type="submit">Logout</button>
+				<button class="small radius" type="submit">Logout</button>
 			</form>
 			<hr />
 		</div>
@@ -96,18 +98,22 @@
     </div>
 
     <div class="row">
-      <div class="large-14 columns"><button type="button" id="add-btn">Add Task</button></div>
-      <div class="large-2 columns"><button type="submit" id="save-btn">Save</button></div>
+      <div class="large-6 columns">
+        <select id="task-select">
+          <option>Select a task</option>
+          {% for task in tasks %}
+          <option value="{{ task.id }}">{{ task.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="large-8 columns"><button class="small radius" type="button" id="add-btn">Add Task</button></div>
+      <div class="large-2 columns text-right"><button  class="small radius" type="submit" id="save-btn">Save</button></div>
     </div>
   </form>
 
 
-  <script>
-  document.write('<script src=' +
-  ('__proto__' in {} ? '{{STATIC_URL}}js/vendor/zepto' : '{{STATIC_URL}}js/vendor/jquery') +
-  '.js><\/script>')
-  </script>
-  
+  <script src="{{STATIC_URL}}js/vendor/jquery.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/select2/3.4.0/select2.min.js"></script>
   <script src="{{STATIC_URL}}js/foundation.min.js"></script>
   <!--
   
@@ -146,6 +152,8 @@
   <script>
 
     $(document).foundation();
+
+    $("#task-select").select2();
 
 
   	function updateTotals() {
@@ -222,9 +230,9 @@
     $('#add-btn').click(function(){
 
       var data = {
-        'taskName': 'Test 1',
-        'taskDescription': 'Test taskDescription',
-        'taskDefinitionId': '1234',
+        'taskName': 'Tech Lead ',
+        'taskDescription': 'SRA International, Inc - TSA SOC Site ',
+        'taskDefinitionId': '51ce8bae706cc7032a5240cc',
         'formId': formCount
       };
 
@@ -232,6 +240,9 @@
 
       $('div.hours input').unbind('keyup', updateTotals);
       $('div.hours input').keyup(updateTotals);
+
+      // set form count to actual count
+      $('#id_form-TOTAL_FORMS').val($('div.entry-row').length);
 
       formCount++;
 

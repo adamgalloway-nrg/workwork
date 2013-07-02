@@ -5,15 +5,15 @@ from models import Client, Comment, Customer, Employee, PaidTimeOff, Project, Ta
 
 class TimeEntryForm(forms.Form):
     taskDefinitionId = forms.CharField(widget=forms.HiddenInput())
-    rowId = forms.IntegerField(widget=forms.HiddenInput())
-    sundayHours = forms.DecimalField(required=False,max_value=24.0, min_value=0.0, decimal_places=2)
-    mondayHours = forms.DecimalField(required=False,max_value=24.0, min_value=0.0, decimal_places=2)
-    tuesdayHours = forms.DecimalField(required=False,max_value=24.0, min_value=0.0, decimal_places=2)
-    wednesdayHours = forms.DecimalField(required=False,max_value=24.0, min_value=0.0, decimal_places=2)
-    thursdayHours = forms.DecimalField(required=False,max_value=24.0, min_value=0.0, decimal_places=2)
-    fridayHours = forms.DecimalField(required=False,max_value=24.0, min_value=0.0, decimal_places=2)
-    saturdayHours = forms.DecimalField(required=False,max_value=24.0, min_value=0.0, decimal_places=2)
-    comment = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Comment'}), max_length=500)
+    rowId = forms.IntegerField(widget=forms.HiddenInput(),required=False)
+    sundayHours = forms.DecimalField(max_value=24.0, min_value=0.0, decimal_places=2)
+    mondayHours = forms.DecimalField(max_value=24.0, min_value=0.0, decimal_places=2)
+    tuesdayHours = forms.DecimalField(max_value=24.0, min_value=0.0, decimal_places=2)
+    wednesdayHours = forms.DecimalField(max_value=24.0, min_value=0.0, decimal_places=2)
+    thursdayHours = forms.DecimalField(max_value=24.0, min_value=0.0, decimal_places=2)
+    fridayHours = forms.DecimalField(max_value=24.0, min_value=0.0, decimal_places=2)
+    saturdayHours = forms.DecimalField(max_value=24.0, min_value=0.0, decimal_places=2)
+    comment = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Comment'}), required=False, max_length=500)
 
     def validate_required_field(self, cleaned_data, field_name, message="Comments are required"):
         if(field_name in cleaned_data and cleaned_data[field_name] is None):
@@ -22,6 +22,7 @@ class TimeEntryForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(TimeEntryForm, self).clean()
+        print cleaned_data
         task_id_string = cleaned_data['taskDefinitionId']
         task = TaskDefinition.objects.get(id=ObjectId(task_id_string))
         if task.commentRequired:

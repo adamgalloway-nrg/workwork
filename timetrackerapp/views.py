@@ -98,7 +98,6 @@ def get_employee(request):
 
 
 
-
 @login_required
 def index(request):
     employee = get_employee(request)
@@ -164,10 +163,12 @@ def index(request):
         else:
             time_entry_formset = TimeEntryFormSet(initial=form_data)
 
+
         return render_to_response('index.html', {
             'time_entry_formset': time_entry_formset,
             'prev_weekId': get_prev_weekId(weekId),
-            'next_weekId': get_next_weekId(weekId)
+            'next_weekId': get_next_weekId(weekId),
+            'tasks': TaskDefinition.objects
         }, context_instance=RequestContext(request))
 
 

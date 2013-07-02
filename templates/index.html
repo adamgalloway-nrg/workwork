@@ -42,10 +42,19 @@
 		<div class="large-2 columns total-title">Total</div>
     </div>
 
+    {% load timetracker_extras %}
+
     {% for f in time_entry_formset.forms %}
-    	<div class="row hours-row">
-    		{{ f.taskDefinitionId }}
+    <div class="entry-row">
+    	<div class="row task-name-row">
+    		<div class="large-14 columns">
+    			<div class="task-name">{% get_task_name f.taskDefinitionId.value %}</div>
+    			<div class="task-description">{% get_task_desc f.taskDefinitionId.value %}</div>
+    		</div>
+			{{ f.taskDefinitionId }}
     		{{ f.rowId }}
+    	</div>
+    	<div class="row hours-row">
     		<div class="large-2 columns sun hours">{{ f.sundayHours.errors }}{{ f.sundayHours }}</div>
     		<div class="large-2 columns mon hours">{{ f.mondayHours.errors }}{{ f.mondayHours }}</div>
     		<div class="large-2 columns tue hours">{{ f.tuesdayHours.errors }}{{ f.tuesdayHours }}</div>
@@ -55,6 +64,12 @@
     		<div class="large-2 columns sat hours">{{ f.saturdayHours.errors }}{{ f.saturdayHours }}</div>
     		<div class="large-2 columns row-total"></div>
     	</div>
+    	<div class="row comment-row">
+    		<div class="large-14 columns comment">
+	    		<input type="text" placeholder="comment" />
+	    	</div>
+    	</div>
+    </div>
     {% endfor %}
 
     <div class="row grand-total-row">

@@ -21,6 +21,11 @@ div.sat-total,
 div.grand-total,
 div.hours input[type="text"] { text-align: right; }
 
+div.row-total { padding-top: 5px; }
+
+div.comment input[type="text"],
+div.hours input[type="text"] { margin: 0 0 0.5em 0; }
+
 div.sun-total span,
 div.mon-total span,
 div.tue-total span,

@@ -3,17 +3,20 @@ from django.template import RequestContext
 from django.views.generic import ListView
 from models import Post
 from models import Client, Comment, Customer, Employee, PaidTimeOff, Project, TaskDefinition, TimeEntry, WeekEntry
+from forms import TimeEntryForm
 import datetime
+import calendar
+import math
+import decimal
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
-import calendar
+from django.forms.formsets import formset_factory
 
 
 
 
-def get_current_weekId():
-    today = datetime.datetime.now()
 
+def get_weekId(today):
     calendar.setfirstweekday(calendar.SUNDAY)
     monthcalendar = calendar.monthcalendar(today.year, today.month)
 
@@ -37,6 +40,10 @@ def get_current_weekId():
                 return "%04d%02d%d" % (date.year,date.month,weekVal)
             else:
                 return "%04d%02d%d" % (today.year,today.month,weekCount)
+
+
+def get_current_weekId():
+    return get_weekId(datetime.datetime.now())
 
 
 def get_prev_weekId(weekId):
@@ -83,10 +90,13 @@ def get_next_weekId(weekId):
     else:
         return "%04d%02d%d" % (year,month,next_week)
 
+
 def get_employee(request):
     if 'employee' not in request.session:
         request.session['employee'] = Employee.objects.get(email=request.user.email)
     return request.session['employee']
+
+
 
 
 @login_required
@@ -97,12 +107,70 @@ def index(request):
         return redirect('/?weekId=' + get_current_weekId())
     else:
         weekId = request.REQUEST['weekId']
-        params = {
-            'entries': TimeEntry.objects(employee=employee.email, weekId=weekId),
+
+        if math.isnan(float(weekId)):
+            return redirect('/?weekId=' + get_current_weekId())
+
+        time_entries = TimeEntry.objects(employee=employee.email, weekId=weekId)
+
+        time_entry_tasks = {}
+        for time_entry in time_entries:
+            task_id = str(time_entry.taskDefinitionId)
+            row_id = str(time_entry.rowId)
+
+            key = task_id + '-' + row_id
+            print key
+            if key not in time_entry_tasks:
+                time_entry_tasks[key] = {
+                    'taskDefinitionId': task_id,
+                    'rowId': row_id,
+                    'sundayHours': decimal.Decimal('0'),
+                    'mondayHours': decimal.Decimal('0'),
+                    'tuesdayHours': decimal.Decimal('0'),
+                    'wednesdayHours': decimal.Decimal('0'),
+                    'thursdayHours': decimal.Decimal('0'),
+                    'fridayHours': decimal.Decimal('0'),
+                    'saturdayHours': decimal.Decimal('0')
+                }
+
+            if time_entry.date.weekday() == 0:
+                time_entry_tasks[key]['mondayHours'] += time_entry.durationInHours
+            elif time_entry.date.weekday() == 1:
+                time_entry_tasks[key]['tuesdayHours'] += time_entry.durationInHours
+            elif time_entry.date.weekday() == 2:
+                time_entry_tasks[key]['wednesdayHours'] += time_entry.durationInHours
+            elif time_entry.date.weekday() == 3:
+                time_entry_tasks[key]['thursdayHours'] += time_entry.durationInHours
+            elif time_entry.date.weekday() == 4:
+                time_entry_tasks[key]['fridayHours'] += time_entry.durationInHours
+            elif time_entry.date.weekday() == 5:
+                time_entry_tasks[key]['saturdayHours'] += time_entry.durationInHours
+            elif time_entry.date.weekday() == 6:
+                time_entry_tasks[key]['sundayHours'] += time_entry.durationInHours
+
+        form_data = []
+        for time_entry_key in time_entry_tasks:
+            print time_entry_tasks[time_entry_key]
+            form_data.append(time_entry_tasks[time_entry_key])
+
+
+        TimeEntryFormSet = formset_factory(TimeEntryForm,extra=0)
+        if request.method == 'POST':
+            time_entry_formset = TimeEntryFormSet(request.POST, request.FILES)
+            if time_entry_formset.is_valid():
+                # do something with the cleaned_data on the formsets.
+
+                pass
+        else:
+            time_entry_formset = TimeEntryFormSet(initial=form_data)
+
+        return render_to_response('index.html', {
+            'time_entry_formset': time_entry_formset,
             'prev_weekId': get_prev_weekId(weekId),
             'next_weekId': get_next_weekId(weekId)
-        }
-        return render_to_response('index.html', params, context_instance=RequestContext(request))
+        }, context_instance=RequestContext(request))
+
+
 
 @login_required
 def manage_customers(request):

@@ -1,0 +1,30 @@
+
+div.sun-title,
+div.mon-title,
+div.tue-title,
+div.wed-title,
+div.thu-title,
+div.fri-title,
+div.sat-title { text-align: center; padding-bottom: 10px; }
+
+div.total-title { padding-bottom: 10px; }
+
+div.total-title,
+div.row-total,
+div.sun-total,
+div.mon-total,
+div.tue-total,
+div.wed-total,
+div.thu-total,
+div.fri-total,
+div.sat-total,
+div.grand-total,
+div.hours input[type="text"] { text-align: right; }
+
+div.sun-total span,
+div.mon-total span,
+div.tue-total span,
+div.wed-total span,
+div.thu-total span,
+div.fri-total span,
+div.sat-total span { padding-right: 5px; }

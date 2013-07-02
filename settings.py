@@ -196,7 +196,7 @@ json_data.close()
 
 GOOGLE_CLIENT_ID = client_secrets['web']['client_id']
 GOOGLE_CLIENT_SECRET = client_secrets['web']['client_secret']
-GOOGLE_APPS_DOMAIN = "<domain name here>"
+GOOGLE_APPS_DOMAIN = "<domain goes here>"
 
 LOGIN_REDIRECT_URL = "/"
 LOGIN_URL = "/google/login"

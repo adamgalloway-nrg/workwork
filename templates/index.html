@@ -5,23 +5,24 @@
 <head>
 	<meta charset="utf-8" />
   <meta name="viewport" content="width=device-width" />
-  <title>Foundation 4</title>
+  <title>Time Entry</title>
 
   
   <link rel="stylesheet" href="{{STATIC_URL}}css/foundation.css" />
+  <link rel="stylesheet" href="{{STATIC_URL}}css/default.css" />
   
 
   <script src="{{STATIC_URL}}js/vendor/custom.modernizr.js"></script>
+  <script src="{{STATIC_URL}}js/moment.min.js"></script>
 
 </head>
 <body>
 
 	<div class="row">
-		<div class="large-12 columns">
+		<div class="large-16 columns">
 			<a href="/?weekId={{prev_weekId}}">Prev</a>
 			<a href="/?weekId={{next_weekId}}">Next</a>
-			<h2>Welcome to Foundation</h2>
-			<p>This is version 4.2.3.</p>
+			<h2>Enter Time</h2>
 			<form method="POST" action="/logout/">
 				{% csrf_token %}
 				<button type="submit">logout</button>
@@ -30,92 +31,51 @@
 		</div>
 	</div>
 
-	{% for entry in entries %}
-    <div class="row" data-id="{{entry.id}}">
-      <div>Date: {{ entry.date }}</div>
-      <div>Hours: {{ entry.durationInHours }}</div>
+    <div class="row title-row">
+    	<div class="large-2 columns sun-title">Sun</div>
+		<div class="large-2 columns mon-title">Mon</div>
+		<div class="large-2 columns tue-title">Tue</div>
+		<div class="large-2 columns wed-title">Wed</div>
+		<div class="large-2 columns thu-title">Thu</div>
+		<div class="large-2 columns fri-title">Fri</div>
+		<div class="large-2 columns sat-title">Sat</div>
+		<div class="large-2 columns total-title">Total</div>
     </div>
+
+    {% for f in time_entry_formset.forms %}
+    	<div class="row hours-row">
+    		{{ f.taskDefinitionId }}
+    		{{ f.rowId }}
+    		<div class="large-2 columns sun hours">{{ f.sundayHours.errors }}{{ f.sundayHours }}</div>
+    		<div class="large-2 columns mon hours">{{ f.mondayHours.errors }}{{ f.mondayHours }}</div>
+    		<div class="large-2 columns tue hours">{{ f.tuesdayHours.errors }}{{ f.tuesdayHours }}</div>
+    		<div class="large-2 columns wed hours">{{ f.wednesdayHours.errors }}{{ f.wednesdayHours }}</div>
+    		<div class="large-2 columns thu hours">{{ f.thursdayHours.errors }}{{ f.thursdayHours }}</div>
+    		<div class="large-2 columns fri hours">{{ f.fridayHours.errors }}{{ f.fridayHours }}</div>
+    		<div class="large-2 columns sat hours">{{ f.saturdayHours.errors }}{{ f.saturdayHours }}</div>
+    		<div class="large-2 columns row-total"></div>
+    	</div>
     {% endfor %}
 
-	<div class="row">
-		<div class="large-8 columns">
-			<h3>The Grid</h3>
+    <div class="row grand-total-row">
+    	<div class="large-2 columns sun-total"><span></span></div>
+		<div class="large-2 columns mon-total"><span></span></div>
+		<div class="large-2 columns tue-total"><span></span></div>
+		<div class="large-2 columns wed-total"><span></span></div>
+		<div class="large-2 columns thu-total"><span></span></div>
+		<div class="large-2 columns fri-total"><span></span></div>
+		<div class="large-2 columns sat-total"><span></span></div>
+		<div class="large-2 columns grand-total"></div>
+    </div>
 
-			<!-- Grid Example -->
-			<div class="row">
-				<div class="large-12 columns">
-					<div class="panel">
-						<p>This is a twelve column section in a row. Each of these includes a div.panel element so you can see where the columns are - it's not required at all for the grid.</p>
-					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="large-6 columns">
-					<div class="panel">
-						<p>Six columns</p>
-					</div>
-				</div>
-				<div class="large-6 columns">
-					<div class="panel">
-						<p>Six columns</p>
-					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="large-4 columns">
-					<div class="panel">
-						<p>Four columns</p>
-					</div>
-				</div>
-				<div class="large-4 columns">
-					<div class="panel">
-						<p>Four columns</p>
-					</div>
-				</div>
-				<div class="large-4 columns">
-					<div class="panel">
-						<p>Four columns</p>
-					</div>
-				</div>
-			</div>
-
-			<h3>Buttons</h3>
-
-      <div class="row">
-        <div class="large-6 columns">
-          <p><a href="#" class="small button">Small Button</a></p>
-          <p><a href="#" class="button">Medium Button</a></p>
-          <p><a href="#" class="large button">Large Button</a></p>
-        </div>
-        <div class="large-6 columns">
-          <p><a href="#" class="small alert button">Small Alert Button</a></p>
-          <p><a href="#" class="success button">Medium Success Button</a></p>
-          <p><a href="#" class="large secondary button">Large Secondary Button</a></p>
-        </div>
-      </div>
-		</div>
-
-		<div class="large-4 columns">
-			<h4>Getting Started</h4>
-			<p>We're stoked you want to try Foundation! To get going, this file (index.html) includes some basic styles you can modify, play around with, or totally destroy to get going.</p>
-
-			<h4>Other Resources</h4>
-			<p>Once you've exhausted the fun in this document, you should check out:</p>
-			<ul class="disc">
-				<li><a href="http://foundation.zurb.com/docs">Foundation Documentation</a><br />Everything you need to know about using the framework.</li>
-				<li><a href="http://github.com/zurb/foundation">Foundation on Github</a><br />Latest code, issue reports, feature requests and more.</li>
-				<li><a href="http://twitter.com/foundationzurb">@foundationzurb</a><br />Ping us on Twitter if you have questions. If you build something with this we'd love to see it (and send you a totally boss sticker).</li>
-			</ul>
-		</div>
-	</div>
 
   <script>
   document.write('<script src=' +
-  ('__proto__' in {} ? 'js/vendor/zepto' : 'js/vendor/jquery') +
+  ('__proto__' in {} ? '{{STATIC_URL}}js/vendor/zepto' : '{{STATIC_URL}}js/vendor/jquery') +
   '.js><\/script>')
   </script>
   
-  <script src="js/foundation.min.js"></script>
+  <script src="{{STATIC_URL}}js/foundation.min.js"></script>
   <!--
   
   <script src="js/foundation/foundation.js"></script>
@@ -151,7 +111,77 @@
   -->
   
   <script>
+
+  	function updateTotals() {
+  		// update totals
+  		$('div.hours-row').each(function(){
+  			var total = 0;
+  			$('div.hours input', this).each(function(){
+  				total += parseFloat($(this).val());
+  			});
+  			$('div.row-total', this).html(total.toFixed(2));
+  		});
+
+  		var sunTotal = 0;
+  		var grandTotal = 0;
+  		$('div.sun.hours input').each(function(){
+  			sunTotal += parseFloat($(this).val()); 
+  		});
+  		$('div.sun-total span').html(sunTotal);
+  		grandTotal += sunTotal;
+
+  		var monTotal = 0;
+  		$('div.mon.hours input').each(function(){
+  			monTotal += parseFloat($(this).val()); 
+  		});
+  		$('div.mon-total span').html(monTotal);
+  		grandTotal += monTotal;
+
+  		var tueTotal = 0;
+  		$('div.tue.hours input').each(function(){
+  			tueTotal += parseFloat($(this).val()); 
+  		});
+  		$('div.tue-total span').html(tueTotal);
+  		grandTotal += tueTotal;
+
+  		var wedTotal = 0;
+  		$('div.wed.hours input').each(function(){
+  			wedTotal += parseFloat($(this).val()); 
+  		});
+  		$('div.wed-total span').html(wedTotal);
+  		grandTotal += wedTotal;
+
+  		var thuTotal = 0;
+  		$('div.thu.hours input').each(function(){
+  			thuTotal += parseFloat($(this).val()); 
+  		});
+  		$('div.thu-total span').html(thuTotal);
+  		grandTotal += thuTotal;
+
+  		var friTotal = 0;
+  		$('div.fri.hours input').each(function(){
+  			friTotal += parseFloat($(this).val()); 
+  		});
+  		$('div.fri-total span').html(friTotal);
+  		grandTotal += friTotal;
+
+  		var satTotal = 0;
+  		$('div.sat.hours input').each(function(){
+  			satTotal += parseFloat($(this).val()); 
+  		});
+  		$('div.sat-total span').html(satTotal);
+  		grandTotal += satTotal;
+
+  		$('div.grand-total').html(grandTotal.toFixed(2));
+  	}
+
+
+  	updateTotals();
+
     $(document).foundation();
+
+  	$('div.hours input').keyup(updateTotals);
+
   </script>
 </body>
 </html>

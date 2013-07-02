@@ -1,13 +1,19 @@
 
+header { background-color: #138ec0; height: 40px; margin-bottom: 10px; color: #FFF; }
+
+header a, header a:hover, header a:visited { padding: 10px; color: #FFF; display: inline-block; }
+
 div.sun-title,
 div.mon-title,
 div.tue-title,
 div.wed-title,
 div.thu-title,
 div.fri-title,
-div.sat-title { text-align: center; padding-bottom: 10px; }
+div.sat-title { text-align: center; }
 
-div.total-title { padding-bottom: 10px; }
+div.total-title { height: inherit; }
+
+div.title-row { padding: 5px 0 5px 0; margin-bottom: 10px; }
 
 div.total-title,
 div.row-total,
@@ -20,6 +26,18 @@ div.fri-total,
 div.sat-total,
 div.grand-total,
 div.hours input[type="text"] { text-align: right; }
+
+div.row-total,
+div.sun-total,
+div.mon-total,
+div.tue-total,
+div.wed-total,
+div.thu-total,
+div.fri-total,
+div.sat-total,
+div.grand-total {  }
+
+div.comment-row { padding-bottom: 5px; }
 
 div.row-total { padding-top: 5px; }
 
@@ -34,6 +52,17 @@ div.thu-total span,
 div.fri-total span,
 div.sat-total span { padding-right: 5px; }
 
+div.grand-total-row { padding-top: 10px;}
+
+div.task-name-row { padding-top: 10px; }
+
+div.controls-row { padding-top: 20px; }
+
+
+div.entry-row:nth-of-type(odd) div.row { background: #f9f9f9; }
+div.entry-row:nth-of-type(odd) div.task-name-row { border-top: 1px dotted #dddddd; }
+div.entry-row:nth-of-type(odd) div.comment-row { border-bottom: 1px dotted #dddddd; }
+
 .select2-container .select2-choice {
 	padding-top: 0.625em;
 	padding-bottom: 0.5625em;
@@ -42,3 +71,13 @@ div.sat-total span { padding-right: 5px; }
 	height: auto;
 	font-weight: bold;
 }
+
+.select2-results li { font-size: 0.8125em !important; }
+
+.error small { margin-top: -1em; }
+.error small ul { margin-bottom: 0; }
+.error small li { list-style-type: none; display: inline-block; }
+
+div.task-description { font-size: 0.75em; padding: 5px 0; }
+
+button, .button { background-color: #138ec0; }

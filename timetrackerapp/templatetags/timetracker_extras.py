@@ -22,7 +22,7 @@ class TaskNameNode(template.Node):
 
 
 @register.tag(name="get_task_desc")
-def do_get_task_desc(parser, token):
+def do_get_task_description(parser, token):
 	tag_name, var_name = token.split_contents()
 	return TaskDescriptionNode(var_name)
 

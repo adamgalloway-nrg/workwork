@@ -22,18 +22,24 @@
 </head>
 <body>
 
+  <header class="text-right">
+      <form method="POST" action="/logout/">
+        {% csrf_token %}
+        <span>{{ user.first_name }}&nbsp;{{ user.last_name }}&nbsp;&nbsp;|</span>
+        <a href="#" onclick="this.form.submit();return false;">Logout</a>
+      </form>
+  </header>
+
 	<div class="row">
-		<div class="large-16 columns">
-      <a href="/">Today</a>
-			<a href="/?weekId={{prev_weekId}}">Prev</a>
-			<a href="/?weekId={{next_weekId}}">Next</a>
-			<h2>Enter Time {{ rangeTitle }}</h2>
-			<form method="POST" action="/logout/">
-				{% csrf_token %}
-				<button class="small radius" type="submit">Logout</button>
-			</form>
-			<hr />
+		<div class="large-8 columns">
+      <button class="small radius" type="button" onclick="window.location='/'">Today</button>
+			<button class="small radius" type="button" onclick="window.location='/?weekId={{prev_weekId}}'">&lt;</button>
+			<button class="small radius" type="button" onclick="window.location='/?weekId={{next_weekId}}'">&gt;</button>
+    </div>
+    <div class="large-8 columns text-right">
+			<h3>{{ rangeTitle }}</h3>
 		</div>
+    <hr/>
 	</div>
 
 
@@ -44,14 +50,14 @@
     {% csrf_token %}
 
     <div class="row title-row">
-    	<div class="large-2 columns sun-title">Sun<br/>{{ sunTitle }}</div>
-  		<div class="large-2 columns mon-title">Mon<br/>{{ monTitle }}</div>
-  		<div class="large-2 columns tue-title">Tue<br/>{{ tueTitle }}</div>
-  		<div class="large-2 columns wed-title">Wed<br/>{{ wedTitle }}</div>
-  		<div class="large-2 columns thu-title">Thu<br/>{{ thuTitle }}</div>
-  		<div class="large-2 columns fri-title">Fri<br/>{{ friTitle }}</div>
-  		<div class="large-2 columns sat-title">Sat<br/>{{ satTitle }}</div>
-  		<div class="large-2 columns total-title">Total</div>
+    	<div class="large-2 columns sun-title">{{ sunTitle }}<br/><b>Sun</b></div>
+  		<div class="large-2 columns mon-title">{{ monTitle }}<br/><b>Mon</b></div>
+  		<div class="large-2 columns tue-title">{{ tueTitle }}<br/><b>Tue</b></div>
+  		<div class="large-2 columns wed-title">{{ wedTitle }}<br/><b>Wed</b></div>
+  		<div class="large-2 columns thu-title">{{ thuTitle }}<br/><b>Thu</b></div>
+  		<div class="large-2 columns fri-title">{{ friTitle }}<br/><b>Fri</b></div>
+  		<div class="large-2 columns sat-title">{{ satTitle }}<br/><b>Sat</b></div>
+  		<div class="large-2 columns total-title"><br/><b>Total</b></div>
     </div>
 
     {{ time_entry_formset.management_form }}
@@ -68,18 +74,56 @@
       		{{ f.rowId }}
       	</div>
       	<div class="row hours-row">
-      		<div class="large-2 columns sun hours">{{ f.sundayHours.errors }}{{ f.sundayHours }}</div>
-      		<div class="large-2 columns mon hours">{{ f.mondayHours.errors }}{{ f.mondayHours }}</div>
-      		<div class="large-2 columns tue hours">{{ f.tuesdayHours.errors }}{{ f.tuesdayHours }}</div>
-      		<div class="large-2 columns wed hours">{{ f.wednesdayHours.errors }}{{ f.wednesdayHours }}</div>
-      		<div class="large-2 columns thu hours">{{ f.thursdayHours.errors }}{{ f.thursdayHours }}</div>
-      		<div class="large-2 columns fri hours">{{ f.fridayHours.errors }}{{ f.fridayHours }}</div>
-      		<div class="large-2 columns sat hours">{{ f.saturdayHours.errors }}{{ f.saturdayHours }}</div>
+      		<div class="large-2 columns sun hours {% if f.sundayHours.errors %}error{% endif %}">
+            {{ f.sundayHours }}
+            {% if f.sundayHours.errors %}
+            <small>{{ f.sundayHours.errors }}</small>
+            {% endif %}
+          </div>
+      		<div class="large-2 columns mon hours {% if f.mondayHours.errors %}error{% endif %}">
+            {{ f.mondayHours }}
+            {% if f.mondayHours.errors %}
+            <small>{{ f.mondayHours.errors }}</small>
+            {% endif %}
+          </div>
+      		<div class="large-2 columns tue hours {% if f.tuesdayHours.errors %}error{% endif %}">
+            {{ f.tuesdayHours }}
+            {% if f.tuesdayHours.errors %}
+            <small>{{ f.tuesdayHours.errors }}</small>
+            {% endif %}
+          </div>
+      		<div class="large-2 columns wed hours {% if f.wednesdayHours.errors %}error{% endif %}">
+            {{ f.wednesdayHours }}
+            {% if f.wednesdayHours.errors %}
+            <small>{{ f.wednesdayHours.errors }}</small>
+            {% endif %}
+          </div>
+      		<div class="large-2 columns thu hours {% if f.thursdayHours.errors %}error{% endif %}">
+            {{ f.thursdayHours }}
+            {% if f.thursdayHours.errors %}
+            <small>{{ f.thursdayHours.errors }}</small>
+            {% endif %}
+          </div>
+      		<div class="large-2 columns fri hours {% if f.fridayHours.errors %}error{% endif %}">
+            {{ f.fridayHours }}
+            {% if f.fridayHours.errors %}
+            <small>{{ f.fridayHours.errors }}</small>
+            {% endif %}
+          </div>
+      		<div class="large-2 columns sat hours {% if f.saturdayHours.errors %}error{% endif %}">
+            {{ f.saturdayHours }}
+            {% if f.saturdayHours.errors %}
+            <small>{{ f.saturdayHours.errors }}</small>
+            {% endif %}
+          </div>
       		<div class="large-2 columns row-total"></div>
       	</div>
       	<div class="row comment-row">
-      		<div class="large-14 columns comment">
-  	    		{{ f.comment.errors }}{{ f.comment }}
+      		<div class="large-14 columns comment {% if f.comment.errors %}error{% endif %}">
+  	    		{{ f.comment }}
+            {% if f.comment.errors %}
+            <small>{{ f.comment.errors }}</small>
+            {% endif %}
   	    	</div>
       	</div>
       </div>
@@ -97,16 +141,20 @@
       <div class="large-2 columns grand-total"></div>
     </div>
 
-    <div class="row">
-      <div class="large-6 columns">
+    <div class="row controls-row">
+      <div class="large-12 columns">
         <select id="task-select">
           <option>Select a task</option>
-          {% for task in tasks %}
+          {% for key,value in tasks_map.items %}
+          <optgroup label="{{ key }}">
+            {% for task in value %}
           <option value="{{ task.id }}">{{ task.name }}</option>
+            {% endfor %}
+          </optgroup>
           {% endfor %}
         </select>
       </div>
-      <div class="large-8 columns"><button class="small radius" type="button" id="add-btn">Add Task</button></div>
+      <div class="large-2 columns text-right"><button class="small radius" type="button" id="add-btn">Add Task</button></div>
       <div class="large-2 columns text-right"><button  class="small radius" type="submit" id="save-btn">Save</button></div>
     </div>
   </form>

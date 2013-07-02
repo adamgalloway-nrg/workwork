@@ -15,6 +15,16 @@ class TimeEntryForm(forms.Form):
     saturdayHours = forms.DecimalField(max_value=24.0, min_value=0.0, decimal_places=2)
     comment = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Comment'}), required=False, max_length=500)
 
+    def __init__(self, *args, **kwargs):
+        super(TimeEntryForm, self).__init__(*args, **kwargs)
+
+        # if you want to do it to all of them
+        for field in self.fields.values():
+            field.error_messages = {'required':'Required'.format(fieldname=field.label)}
+
+        self.fields['taskDefinitionId'].error_messages = {'required': 'Task Definition Id is required.'}
+
+
     def validate_required_field(self, cleaned_data, field_name, message="Comments are required"):
         if(field_name in cleaned_data and cleaned_data[field_name] is None):
             self._errors[field_name] = self.error_class([message])

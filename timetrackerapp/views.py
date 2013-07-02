@@ -11,6 +11,7 @@ import decimal
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.forms.formsets import formset_factory
+import collections
 
 
 
@@ -104,13 +105,6 @@ def get_week_dates(weekId):
 
 
 def get_range_title(startDate, endDate):
-    # [#if startYear != endYear ]
-    #     [#assign viewingDateRange = sunday?string("MMM d, yyyy") + " - " + saturday?string("MMM d, yyyy") /]
-    # [#elseif startMonth != endMonth ]
-    #     [#assign viewingDateRange = sunday?string("MMM d") + " - " + saturday?string("MMM d, yyyy") /]
-    # [#else]
-    #     [#assign viewingDateRange = sunday?string("MMM d") + " - " + saturday?string("d, yyyy") /]
-    # [/#if]
     if startDate.year != endDate.year:
         return startDate.strftime("%b %-d, %Y") + ' - ' + endDate.strftime("%b %-d, %Y")
     elif startDate.month != endDate.month:
@@ -125,6 +119,24 @@ def get_employee(request):
         request.session['employee'] = Employee.objects.get(email=request.user.email)
     return request.session['employee']
 
+
+
+def get_task_description(task):
+    if task.customerName.strip() == task.clientName.strip():
+        return task.customerName + ' - ' + task.projectName
+    else:
+        return task.customerName + ' - ' + task.clientName + ' - ' + task.projectName
+
+def get_tasks_map():
+    tasks_map = {}
+    for task in TaskDefinition.objects.order_by('name'):
+        task_group = get_task_description(task)
+        if task_group not in tasks_map:
+            tasks_map[task_group] = []
+        tasks_map[task_group].append(task)
+
+    # sort keys alphabetically
+    return collections.OrderedDict(sorted(tasks_map.items()))
 
 
 @login_required
@@ -144,6 +156,8 @@ def index(request):
 
         time_entries = TimeEntry.objects(employee=employee.email, weekId=weekId)
         comments = Comment.objects(employee=employee.email, weekId=weekId)
+
+        tasks_map = get_tasks_map()
 
         time_entry_row = {}
         for time_entry in time_entries:
@@ -196,7 +210,7 @@ def index(request):
             if time_entry_formset.is_valid():
                 # do something with the cleaned_data on the formsets.
                 #print str(time_entry_formset)
-                
+
 
                 pass
         else:
@@ -208,7 +222,7 @@ def index(request):
             'weekId': weekId,
             'prev_weekId': get_prev_weekId(weekId),
             'next_weekId': get_next_weekId(weekId),
-            'tasks': TaskDefinition.objects,
+            'tasks_map': tasks_map,
             'sunTitle': sunDate.strftime("%-m/%-d"),
             'monTitle': monDate.strftime("%-m/%-d"),
             'tueTitle': tueDate.strftime("%-m/%-d"),

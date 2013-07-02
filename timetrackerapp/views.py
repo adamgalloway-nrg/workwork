@@ -111,16 +111,16 @@ def index(request):
             return redirect('/?weekId=' + get_current_weekId())
 
         time_entries = TimeEntry.objects(employee=employee.email, weekId=weekId)
+        comments = Comment.objects(employee=employee.email, weekId=weekId)
 
-        time_entry_tasks = {}
+        time_entry_row = {}
         for time_entry in time_entries:
             task_id = str(time_entry.taskDefinitionId)
             row_id = str(time_entry.rowId)
 
-            key = task_id + '-' + row_id
-            print key
-            if key not in time_entry_tasks:
-                time_entry_tasks[key] = {
+            print row_id
+            if row_id not in time_entry_row:
+                time_entry_row[row_id] = {
                     'taskDefinitionId': task_id,
                     'rowId': row_id,
                     'sundayHours': decimal.Decimal('0'),
@@ -133,24 +133,30 @@ def index(request):
                 }
 
             if time_entry.date.weekday() == 0:
-                time_entry_tasks[key]['mondayHours'] += time_entry.durationInHours
+                time_entry_row[row_id]['mondayHours'] += time_entry.durationInHours
             elif time_entry.date.weekday() == 1:
-                time_entry_tasks[key]['tuesdayHours'] += time_entry.durationInHours
+                time_entry_row[row_id]['tuesdayHours'] += time_entry.durationInHours
             elif time_entry.date.weekday() == 2:
-                time_entry_tasks[key]['wednesdayHours'] += time_entry.durationInHours
+                time_entry_row[row_id]['wednesdayHours'] += time_entry.durationInHours
             elif time_entry.date.weekday() == 3:
-                time_entry_tasks[key]['thursdayHours'] += time_entry.durationInHours
+                time_entry_row[row_id]['thursdayHours'] += time_entry.durationInHours
             elif time_entry.date.weekday() == 4:
-                time_entry_tasks[key]['fridayHours'] += time_entry.durationInHours
+                time_entry_row[row_id]['fridayHours'] += time_entry.durationInHours
             elif time_entry.date.weekday() == 5:
-                time_entry_tasks[key]['saturdayHours'] += time_entry.durationInHours
+                time_entry_row[row_id]['saturdayHours'] += time_entry.durationInHours
             elif time_entry.date.weekday() == 6:
-                time_entry_tasks[key]['sundayHours'] += time_entry.durationInHours
+                time_entry_row[row_id]['sundayHours'] += time_entry.durationInHours
+
+        for comment in comments:
+            row_id = str(comment.rowId)
+
+            time_entry_row[row_id]['comment'] = comment.text
+
 
         form_data = []
-        for time_entry_key in time_entry_tasks:
-            print time_entry_tasks[time_entry_key]
-            form_data.append(time_entry_tasks[time_entry_key])
+        for time_entry_row_id in time_entry_row:
+            print time_entry_row[time_entry_row_id]
+            form_data.append(time_entry_row[time_entry_row_id])
 
 
         TimeEntryFormSet = formset_factory(TimeEntryForm,extra=0)
@@ -158,6 +164,7 @@ def index(request):
             time_entry_formset = TimeEntryFormSet(request.POST, request.FILES)
             if time_entry_formset.is_valid():
                 # do something with the cleaned_data on the formsets.
+                print str(time_entry_formset)
 
                 pass
         else:
@@ -166,6 +173,7 @@ def index(request):
 
         return render_to_response('index.html', {
             'time_entry_formset': time_entry_formset,
+            'weekId': weekId,
             'prev_weekId': get_prev_weekId(weekId),
             'next_weekId': get_next_weekId(weekId),
             'tasks': TaskDefinition.objects
@@ -230,7 +238,7 @@ def manage_employees(request):
 #   storage = Storage(CredentialsModel, 'id', request.user, 'credential')
 #   credential = storage.get()
 #   if credential is None or credential.invalid == True:
-#     FLOW.params['state'] = xsrfutil.generate_token(settings.SECRET_KEY, request.user)
+#     FLOW.params['state'] = xsrfutil.generate_token(settings.SECRET_row_id, request.user)
 #     authorize_url = FLOW.step1_get_authorize_url()
 #     print authorize_url
 #     return HttpResponseRedirect(authorize_url)
@@ -248,7 +256,7 @@ def manage_employees(request):
 # @login_required
 # def auth_return(request):
 #     print "auth return"
-#     if not xsrfutil.validate_token(settings.SECRET_KEY, request.REQUEST['state'], request.user):
+#     if not xsrfutil.validate_token(settings.SECRET_row_id, request.REQUEST['state'], request.user):
 #         return  HttpResponseBadRequest()
 #     credential = FLOW.step2_exchange(request.REQUEST)
 #     storage = Storage(CredentialsModel, 'id', request.user, 'credential')

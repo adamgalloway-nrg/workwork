@@ -91,6 +91,35 @@ def get_next_weekId(weekId):
         return "%04d%02d%d" % (year,month,next_week)
 
 
+def get_week_dates(weekId):
+    week_id_str = str(weekId)
+    year = int(week_id_str[:4])
+    month = int(week_id_str[4:6])
+    week = int(week_id_str[6:7])
+
+    cal = calendar.Calendar(calendar.SUNDAY)
+
+    monthcalendar = cal.monthdatescalendar(year, month)
+    return  monthcalendar[week - 1]
+
+
+def get_range_title(startDate, endDate):
+    # [#if startYear != endYear ]
+    #     [#assign viewingDateRange = sunday?string("MMM d, yyyy") + " - " + saturday?string("MMM d, yyyy") /]
+    # [#elseif startMonth != endMonth ]
+    #     [#assign viewingDateRange = sunday?string("MMM d") + " - " + saturday?string("MMM d, yyyy") /]
+    # [#else]
+    #     [#assign viewingDateRange = sunday?string("MMM d") + " - " + saturday?string("d, yyyy") /]
+    # [/#if]
+    if startDate.year != endDate.year:
+        return startDate.strftime("%b %-d, %Y") + ' - ' + endDate.strftime("%b %-d, %Y")
+    elif startDate.month != endDate.month:
+        return startDate.strftime("%b %-d") + ' - ' + endDate.strftime("%b %-d, %Y")
+    else:
+        return startDate.strftime("%b %-d") + ' - ' + endDate.strftime("%-d, %Y")
+
+
+
 def get_employee(request):
     if 'employee' not in request.session:
         request.session['employee'] = Employee.objects.get(email=request.user.email)
@@ -110,6 +139,9 @@ def index(request):
         if math.isnan(float(weekId)):
             return redirect('/?weekId=' + get_current_weekId())
 
+        sunDate, monDate, tueDate, wedDate, thuDate, friDate, satDate = get_week_dates(weekId)
+
+
         time_entries = TimeEntry.objects(employee=employee.email, weekId=weekId)
         comments = Comment.objects(employee=employee.email, weekId=weekId)
 
@@ -118,7 +150,6 @@ def index(request):
             task_id = str(time_entry.taskDefinitionId)
             row_id = str(time_entry.rowId)
 
-            print row_id
             if row_id not in time_entry_row:
                 time_entry_row[row_id] = {
                     'taskDefinitionId': task_id,
@@ -155,7 +186,7 @@ def index(request):
 
         form_data = []
         for time_entry_row_id in time_entry_row:
-            print time_entry_row[time_entry_row_id]
+            # get data without keys
             form_data.append(time_entry_row[time_entry_row_id])
 
 
@@ -176,7 +207,15 @@ def index(request):
             'weekId': weekId,
             'prev_weekId': get_prev_weekId(weekId),
             'next_weekId': get_next_weekId(weekId),
-            'tasks': TaskDefinition.objects
+            'tasks': TaskDefinition.objects,
+            'sunTitle': sunDate.strftime("%-m/%-d"),
+            'monTitle': monDate.strftime("%-m/%-d"),
+            'tueTitle': tueDate.strftime("%-m/%-d"),
+            'wedTitle': wedDate.strftime("%-m/%-d"),
+            'thuTitle': thuDate.strftime("%-m/%-d"),
+            'friTitle': friDate.strftime("%-m/%-d"),
+            'satTitle': satDate.strftime("%-m/%-d"),
+            'rangeTitle': get_range_title(sunDate, satDate)
         }, context_instance=RequestContext(request))
 
 

@@ -5,7 +5,7 @@
 <head>
 	<meta charset="utf-8" />
   <meta name="viewport" content="width=device-width" />
-  <title>Time Entry</title>
+  <title>Enter Time</title>
 
   
   <link rel="stylesheet" href="{{STATIC_URL}}css/foundation.css" />
@@ -14,15 +14,18 @@
 
   <script src="{{STATIC_URL}}js/vendor/custom.modernizr.js"></script>
   <script src="{{STATIC_URL}}js/moment.min.js"></script>
+  <script src="http://twitter.github.com/hogan.js/builds/2.0.0/hogan-2.0.0.js"></script>
+  <script src="{{STATIC_URL}}js/templates.js"></script>
 
 </head>
 <body>
 
 	<div class="row">
 		<div class="large-16 columns">
+      <a href="/">Today</a>
 			<a href="/?weekId={{prev_weekId}}">Prev</a>
 			<a href="/?weekId={{next_weekId}}">Next</a>
-			<h2>Enter Time</h2>
+			<h2>Enter Time {{ rangeTitle }}</h2>
 			<form method="POST" action="/logout/">
 				{% csrf_token %}
 				<button type="submit">Logout</button>
@@ -39,45 +42,47 @@
     {% csrf_token %}
 
     <div class="row title-row">
-    	<div class="large-2 columns sun-title">Sun</div>
-  		<div class="large-2 columns mon-title">Mon</div>
-  		<div class="large-2 columns tue-title">Tue</div>
-  		<div class="large-2 columns wed-title">Wed</div>
-  		<div class="large-2 columns thu-title">Thu</div>
-  		<div class="large-2 columns fri-title">Fri</div>
-  		<div class="large-2 columns sat-title">Sat</div>
+    	<div class="large-2 columns sun-title">Sun<br/>{{ sunTitle }}</div>
+  		<div class="large-2 columns mon-title">Mon<br/>{{ monTitle }}</div>
+  		<div class="large-2 columns tue-title">Tue<br/>{{ tueTitle }}</div>
+  		<div class="large-2 columns wed-title">Wed<br/>{{ wedTitle }}</div>
+  		<div class="large-2 columns thu-title">Thu<br/>{{ thuTitle }}</div>
+  		<div class="large-2 columns fri-title">Fri<br/>{{ friTitle }}</div>
+  		<div class="large-2 columns sat-title">Sat<br/>{{ satTitle }}</div>
   		<div class="large-2 columns total-title">Total</div>
     </div>
 
     {{ time_entry_formset.management_form }}
 
-    {% for f in time_entry_formset.forms %}
-    <div class="entry-row">
-    	<div class="row task-name-row">
-    		<div class="large-14 columns">
-    			<div class="task-name">{% get_task_name f.taskDefinitionId.value %}</div>
-    			<div class="task-description">{% get_task_desc f.taskDefinitionId.value %}</div>
-    		</div>
-        {{ f.taskDefinitionId }}
-    		{{ f.rowId }}
-    	</div>
-    	<div class="row hours-row">
-    		<div class="large-2 columns sun hours">{{ f.sundayHours.errors }}{{ f.sundayHours }}</div>
-    		<div class="large-2 columns mon hours">{{ f.mondayHours.errors }}{{ f.mondayHours }}</div>
-    		<div class="large-2 columns tue hours">{{ f.tuesdayHours.errors }}{{ f.tuesdayHours }}</div>
-    		<div class="large-2 columns wed hours">{{ f.wednesdayHours.errors }}{{ f.wednesdayHours }}</div>
-    		<div class="large-2 columns thu hours">{{ f.thursdayHours.errors }}{{ f.thursdayHours }}</div>
-    		<div class="large-2 columns fri hours">{{ f.fridayHours.errors }}{{ f.fridayHours }}</div>
-    		<div class="large-2 columns sat hours">{{ f.saturdayHours.errors }}{{ f.saturdayHours }}</div>
-    		<div class="large-2 columns row-total"></div>
-    	</div>
-    	<div class="row comment-row">
-    		<div class="large-14 columns comment">
-	    		{{ f.comment.errors }}{{ f.comment }}
-	    	</div>
-    	</div>
+    <div class="entry-rows">
+      {% for f in time_entry_formset.forms %}
+      <div class="entry-row">
+      	<div class="row task-name-row">
+      		<div class="large-14 columns">
+      			<div class="task-name">{% get_task_name f.taskDefinitionId.value %} {{ f.taskDefinitionId.errors }}</div>
+      			<div class="task-description">{% get_task_desc f.taskDefinitionId.value %} {{ f.rowId.errors }}</div>
+      		</div>
+          {{ f.taskDefinitionId }}
+      		{{ f.rowId }}
+      	</div>
+      	<div class="row hours-row">
+      		<div class="large-2 columns sun hours">{{ f.sundayHours.errors }}{{ f.sundayHours }}</div>
+      		<div class="large-2 columns mon hours">{{ f.mondayHours.errors }}{{ f.mondayHours }}</div>
+      		<div class="large-2 columns tue hours">{{ f.tuesdayHours.errors }}{{ f.tuesdayHours }}</div>
+      		<div class="large-2 columns wed hours">{{ f.wednesdayHours.errors }}{{ f.wednesdayHours }}</div>
+      		<div class="large-2 columns thu hours">{{ f.thursdayHours.errors }}{{ f.thursdayHours }}</div>
+      		<div class="large-2 columns fri hours">{{ f.fridayHours.errors }}{{ f.fridayHours }}</div>
+      		<div class="large-2 columns sat hours">{{ f.saturdayHours.errors }}{{ f.saturdayHours }}</div>
+      		<div class="large-2 columns row-total"></div>
+      	</div>
+      	<div class="row comment-row">
+      		<div class="large-14 columns comment">
+  	    		{{ f.comment.errors }}{{ f.comment }}
+  	    	</div>
+      	</div>
+      </div>
+      {% endfor %}
     </div>
-    {% endfor %}
 
     <div class="row grand-total-row">
       <div class="large-2 columns sun-total"><span></span></div>
@@ -91,8 +96,8 @@
     </div>
 
     <div class="row">
-      <div class="large-14 columns"></div>
-      <div class="large-2 columns"><button type="submit">Save</button></div>
+      <div class="large-14 columns"><button type="button" id="add-btn">Add Task</button></div>
+      <div class="large-2 columns"><button type="submit" id="save-btn">Save</button></div>
     </div>
   </form>
 
@@ -139,6 +144,9 @@
   -->
   
   <script>
+
+    $(document).foundation();
+
 
   	function updateTotals() {
   		// update totals
@@ -203,12 +211,31 @@
   		$('div.grand-total').html(grandTotal.toFixed(2));
   	}
 
-
   	updateTotals();
 
-    $(document).foundation();
-
   	$('div.hours input').keyup(updateTotals);
+
+
+
+    var formCount = $('div.entry-row').length;
+
+    $('#add-btn').click(function(){
+
+      var data = {
+        'taskName': 'Test 1',
+        'taskDescription': 'Test taskDescription',
+        'taskDefinitionId': '1234',
+        'formId': formCount
+      };
+
+      $('div.entry-rows').append(timeEntryRow.render(data));
+
+      $('div.hours input').unbind('keyup', updateTotals);
+      $('div.hours input').keyup(updateTotals);
+
+      formCount++;
+
+    });
 
   </script>
 </body>

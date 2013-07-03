@@ -5,6 +5,9 @@ var timeEntryRowMarkup =
 			'<div class="task-name">{{taskName}}</div>'+
 			'<div class="task-description">{{taskDescription}}</div>'+
 		'</div>'+
+		'<div class="large-2 columns text-right">'+
+        	'<span class="delete" onclick="deletEntry(this);">[X]</span>'+
+      	'</div>'+
         '<input id="id_form-{{formId}}-taskDefinitionId" name="form-{{formId}}-taskDefinitionId" type="hidden" value="{{taskDefinitionId}}">'+
 		'<input id="id_form-{{formId}}-rowId" name="form-{{formId}}-rowId" type="hidden" value="">'+
 	'</div>'+

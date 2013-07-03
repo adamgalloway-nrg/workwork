@@ -1,24 +1,203 @@
 {% extends "base.html" %}
 {% block title %}Manage Employees{% endblock %}
 {% block content %}
-    <h1>Add a Employee</h1>
-    <form method="post" action="/">
-      {% csrf_token %}
-      <div>
-          <input type="text" name="name" placeholder="Employee Name" required>
-      </div>
-      <div>
-          <input type="submit" value="Add Employee">
-      </div>
-    </form>
+    <nav class="row">
+      <dl class="sub-nav">
+        <dt>Manage:</dt>
+        <dd class="active"><a href="/employee">Employees</a></dd>
+        <dd><a href="/customer">Customers</a></dd>
+        <dd><a href="/client">Clients</a></dd>
+        <dd><a href="/project">Projects</a></dd>
+        <dd><a href="/task">Tasks</a></dd>
+      </dl>
+    </nav>
 
-    <h1>Employees</h1>
-<!-- Cycle through entries -->
-    {% for employee in employees %}
-    <div data-id="{{employee.id}}">
-      <div>{{ employee.name }}</div>
-      <div><button type="button" class="edit">Edit</button></div>
-      <div><button type="button" class="delete">Delete</button></div>
+    <section>
+      <div class="row">
+        <h4>Add an Employee</h4>
+      </div>
+
+      <form method="post" action="/" class="custom">
+        {% csrf_token %}
+        <div class="row">
+            <div class="large-6 columns">
+              <label>Name</label>
+              <input type="text" name="email" placeholder="Enter a name" required />
+            </div>
+            <div class="large-6 columns">
+              <label>Email</label>
+              <input type="text" name="email" placeholder="Enter an email address" required />
+            </div>
+            <div class="large-2 columns">
+              <label>Admin</label>
+              <div class="switch radius">
+                <input id="admin" name="admin" value="False" type="radio" checked>
+                <label for="admin" onclick="">No</label>
+
+                <input id="admin1" name="admin" value="True" type="radio">
+                <label for="admin1" onclick="">Yes</label>
+
+                <span></span>
+              </div>
+            </div>
+            <div class="large-2 columns">
+              <label>Active</label>
+              <div class="switch radius">
+                <input id="active" name="active" value="False" type="radio">
+                <label for="active" onclick="">No</label>
+
+                <input id="active1" name="active" value="True" type="radio" checked>
+                <label for="active1" onclick="">Yes</label>
+
+                <span></span>
+              </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="large-16 columns text-right">
+              <button class="small" name="add" type="submit">Add</button>
+            </div>
+        </div>
+      </form>
+    </section>
+
+    <section>
+      <div class="row">
+        <h4>Employees</h4>
+      </div>
+
+      <div class="row manage-title-row">
+        <div class="large-5 columns">Name</div>
+        <div class="large-5 columns">Email</div>
+        <div class="large-2 columns">Start Date</div>
+        <div class="large-1 columns">Active</div>
+        <div class="large-1 columns">Admin</div>
+        <div class="large-2 columns text-center">Action</div>
+      </div>
+
+      {% for item in employees %}
+      <div class="item row" data-id="{{ item.id }}" data-name="{{ item.name }}" data-email="{{ item.email }}" data-startDate="{{ item.startDate|date:"m/d/Y" }}" data-active="{{ item.active }}" data-admin="{{ item.admin }}">
+        <div class="large-5 columns">{{ item.name }}</div>
+        <div class="large-5 columns">{{ item.email }}</div>
+        <div class="large-2 columns">{{ item.startDate|date:"m/d/Y" }}</div>
+        <div class="large-1 columns">{{ item.active|yesno:"yes,no" }}</div>
+        <div class="large-1 columns">{{ item.admin|yesno:"yes,no" }}</div>
+        <div class="large-2 columns text-center">
+          <button type="button" class="tiny radius edit">Edit</button>
+          <button type="button" class="tiny radius delete">Delete</button>
+        </div>
+      </div>
+      {% endfor %}
+    </section>
+
+
+    <div id="edit-dialog" class="reveal-modal small">
+      <h2>Employee Edit</h2>
+      <p>
+        <label>Name</label>
+        <input class="item-name" type="text" placeholder="Enter a name" required/>
+        <input class="item-id" type="hidden" />
+      </p>
+      <p>
+        <label>Email</label>
+        <input class="item-email" type="text" placeholder="Enter an email address" />
+      </p>
+      <p>
+        <label>Start Date</label>
+        <input class="item-startDate" type="text" placeholder="mm/dd/yyyy" />
+      </p>
+      <div>
+        <div class="item-switch">
+          <label>Active</label>
+          <div class="switch radius">
+            <input id="item-active" name="item-active" value="False" type="radio" checked/>
+            <label for="item-active" onclick="">No</label>
+
+            <input id="item-active1" name="item-active" value="True" type="radio"/>
+            <label for="item-active1" onclick="">Yes</label>
+
+            <span></span>
+          </div>
+        </div>
+        <div class="item-switch">
+          <label>Admin</label>
+          <div class="switch radius">
+            <input id="item-admin" name="item-admin" type="radio" value="False" checked/>
+            <label for="item-admin" onclick="">No</label>
+
+            <input id="item-admin1" name="item-admin" value="True" type="radio"/>
+            <label for="item-admin1" onclick="">Yes</label>
+
+            <span></span>
+          </div>
+        </div>
+      </div>
+      <p class="text-right">
+        <button class="small cancel" type="button" data-dialog-id="edit-dialog">Cancel</button>
+        <button class="small save" type="button">Save</button>
+      </p>
+      <a class="close-reveal-modal">&#215;</a>
     </div>
-    {% endfor %}
+
+    <div id="edit-success-dialog" class="reveal-modal small">
+      <h2>Employee Edit</h2>
+      <p>You have successfully updated the employee.</p>
+      <p class="text-right">
+        <button class="small cancel" type="button" data-dialog-id="edit-success-dialog">Done</button>
+      </p>
+      <a class="close-reveal-modal">&#215;</a>
+    </div>
+
+    <script>
+
+      function clearDialog() {
+        $('#edit-dialog input.item-id').val('');
+        $('#edit-dialog input.item-name').val('');
+        $('#edit-dialog input.item-email').val('');
+        $('#edit-dialog input.item-startDate').val('');
+      }
+
+      function setupDialog(target) {
+        $('#edit-dialog input.item-id').val(target.attr('data-id'));
+        $('#edit-dialog input.item-name').val(target.attr('data-name'));
+        $('#edit-dialog input.item-email').val(target.attr('data-email'));
+        $('#edit-dialog input.item-startDate').val(target.attr('data-startDate'));
+        $('#edit-dialog input[name="item-admin"][value="' + target.attr('data-admin') + '"]').attr('checked', true);
+        $('#edit-dialog input[name="item-active"][value="' + target.attr('data-active') + '"]').attr('checked', true);
+      }
+      
+      $('#edit-dialog').foundation('reveal');
+      $('#edit-success-dialog').foundation('reveal');
+
+      $('#edit-dialog').on('close', clearDialog);
+
+      $('button.edit').click(function(event){
+        var target = $(this);
+        setupDialog(target.parents('div.item.row'));
+        $('#edit-dialog').foundation('reveal', 'open');
+      });
+
+      $('button.delete').click(function(event){
+        var target = $(this);
+        var row = target.parents('div.item.row');
+        var id = row.attr('data-id');
+
+        if (confirm('Are you sure you want to delete this?')) {
+          //TODO delete it
+        }
+      });
+
+      $('#edit-dialog button.save').click(function(event){
+        //TODO save the data
+        // open success dialog
+        $('#edit-success-dialog').foundation('reveal', 'open');
+      });
+
+      $('button.cancel').click(function(event){
+        // close dialog
+        var dialogId = $(this).data('dialog-id');
+        $('#' + dialogId).foundation('reveal', 'close');
+      });
+
+    </script>
 {% endblock %}

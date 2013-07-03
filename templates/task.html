@@ -1,24 +1,139 @@
 {% extends "base.html" %}
 {% block title %}Manage Employees{% endblock %}
 {% block content %}
-    <h1>Add a Task</h1>
-    <form method="post" action="/">
-      {% csrf_token %}
-      <div>
-          <input type="text" name="name" placeholder="Task Name" required>
-      </div>
-      <div>
-          <input type="submit" value="Add Task">
-      </div>
-    </form>
+    <nav class="row">
+      <dl class="sub-nav">
+        <dt>Manage:</dt>
+        <dd><a href="/employee">Employees</a></dd>
+        <dd><a href="/customer">Customers</a></dd>
+        <dd><a href="/client">Clients</a></dd>
+        <dd><a href="/project">Projects</a></dd>
+        <dd class="active"><a href="/task">Tasks</a></dd>
+      </dl>
+    </nav>
 
-    <h1>Tasks</h1>
-<!-- Cycle through entries -->
-    {% for task in tasks %}
-    <div data-id="{{task.id}}">
-      <div>{{ task.name }}</div>
-      <div><button type="button" class="edit">Edit</button></div>
-      <div><button type="button" class="delete">Delete</button></div>
+    <section>
+      <div class="row">
+        <h4>Add a Task</h4>
+      </div>
+
+      <form method="post" action="/">
+        {% csrf_token %}
+        <div class="row">
+            <div class="large-8 columns">
+              <label>Name</label>
+              <input type="text" name="name" placeholder="Enter a name" required />
+            </div>
+            <div class="large-8 columns">
+              <label>Invoicing Id</label>
+              <input type="text" name="invoicingId" placeholder="Enter an invoicing id" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="large-16 columns text-right">
+              <button class="small" name="add" type="submit">Add</button>
+            </div>
+        </div>
+      </form>
+    </section>
+
+    <section>
+      <div class="row">
+        <h4>Tasks</h4>
+      </div>
+
+      <div class="row manage-title-row">
+        <div class="large-7 columns">Name</div>
+        <div class="large-7 columns">Invoicing Id</div>
+        <div class="large-2 columns text-center">Action</div>
+      </div>
+
+      {% for item in tasks %}
+      <div class="item row" data-id="{{ item.id }}" data-name="{{ item.name }}" data-invoicingId="{{ item.invoicingId }}">
+        <div class="large-7 columns">{{ item.name }}</div>
+        <div class="large-7 columns">{{ item.invoicingId }}</div>
+        <div class="large-2 columns text-center">
+          <button type="button" class="tiny radius edit">Edit</button>
+          <button type="button" class="tiny radius delete">Delete</button>
+        </div>
+      </div>
+      {% endfor %}
+    </section>
+
+
+    <div id="edit-dialog" class="reveal-modal small">
+      <h2>Edit Task</h2>
+      <p>
+        <label>Name</label>
+        <input class="item-name" type="text" placeholder="Enter a name" required/>
+        <input class="item-id" type="hidden" />
+      </p>
+      <p>
+        <label>Invoicing Id</label>
+        <input class="item-invoicingId" type="text" placeholder="Enter an invoicing id" />
+      </p>
+      <p class="text-right">
+        <button class="small cancel" type="button" data-dialog-id="edit-dialog">Cancel</button>
+        <button class="small save" type="button">Save</button>
+      </p>
+      <a class="close-reveal-modal">&#215;</a>
     </div>
-    {% endfor %}
+
+    <div id="edit-success-dialog" class="reveal-modal small">
+      <h2>Edit Task</h2>
+      <p>You have successfully updated the task.</p>
+      <p class="text-right">
+        <button class="small cancel" type="button" data-dialog-id="edit-success-dialog">Done</button>
+      </p>
+      <a class="close-reveal-modal">&#215;</a>
+    </div>
+
+    <script>
+
+      function clearDialog() {
+        $('#edit-dialog input.item-id').val('');
+        $('#edit-dialog input.item-name').val('');
+        $('#edit-dialog input.item-invoicingId').val('');
+      }
+
+      function setupDialog(target) {
+        $('#edit-dialog input.item-id').val(target.data('id'));
+        $('#edit-dialog input.item-name').val(target.data('name'));
+        $('#edit-dialog input.item-invoicingId').val(target.data('invoicingId'));
+      }
+      
+      $('#edit-dialog').foundation('reveal');
+      $('#edit-success-dialog').foundation('reveal');
+
+      $('#edit-dialog').on('close', clearDialog);
+
+      $('button.edit').click(function(event){
+        var target = $(this);
+        setupDialog(target.parents('div.item.row'));
+        $('#edit-dialog').foundation('reveal', 'open');
+      });
+
+      $('button.delete').click(function(event){
+        var target = $(this);
+        var row = target.parents('div.item.row');
+        var id = row.attr('data-id');
+
+        if (confirm('Are you sure you want to delete this?')) {
+          //TODO delete it
+        }
+      });
+
+      $('#edit-dialog button.save').click(function(event){
+        //TODO save the data
+        // open success dialog
+        $('#edit-success-dialog').foundation('reveal', 'open');
+      });
+
+      $('button.cancel').click(function(event){
+        // close dialog
+        var dialogId = $(this).data('dialog-id');
+        $('#' + dialogId).foundation('reveal', 'close');
+      });
+
+    </script>
 {% endblock %}

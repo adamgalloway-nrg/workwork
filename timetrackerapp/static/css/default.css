@@ -3,6 +3,17 @@ header { background-color: #138ec0; height: 40px; margin-bottom: 10px; color: #F
 
 header a, header a:hover, header a:visited { padding: 10px; color: #FFF; display: inline-block; }
 
+nav { padding-left: 10px;}
+
+.sub-nav dt.active a, .sub-nav dd.active a { background: #138ec0; }
+
+button.calendar { 
+	background-image: url(/static/img/Calendar_font_awesome.svg);
+	background-repeat:no-repeat;
+	background-size: auto 70%;
+	background-position: center;
+}
+
 div.entry-row span.delete { font-size: 0.8em; color: #888; }
 
 div.sun-title,
@@ -77,7 +88,7 @@ div.entry-row:nth-of-type(odd) div.comment-row { border-bottom: 1px dotted #dddd
 	font-weight: bold;
 }
 
-.select2-results li { font-size: 0.8125em !important; }
+.select2-results li { font-size: 0.85em !important; }
 
 .error small { margin-top: -1em; }
 .error small ul { margin-bottom: 0; }
@@ -86,3 +97,11 @@ div.entry-row:nth-of-type(odd) div.comment-row { border-bottom: 1px dotted #dddd
 div.task-description { font-size: 0.75em; padding: 5px 0; }
 
 button, .button { background-color: #138ec0; }
+
+/* custom switch color */
+div.switch span:last-child {
+	-webkit-box-shadow: 2px 0 10px 0 rgba(0, 0, 0, 0.07), 1000px 0 0 1000px #fff, -2px 0 10px 0 rgba(0, 0, 0, 0.07), -1000px 0 0 1000px whitesmoke;
+	box-shadow: 2px 0 10px 0 rgba(0, 0, 0, 0.07), 1000px 0 0 980px #fff, -2px 0 10px 0 rgba(0, 0, 0, 0.07), -1000px 0 0 1000px whitesmoke;
+}
+
+div.item-switch { display:inline-block; min-width:120px; }

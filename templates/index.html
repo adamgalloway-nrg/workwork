@@ -1,37 +1,9 @@
-<!DOCTYPE html>
-<!--[if IE 8]> 				 <html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
-
-<head>
-	<meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width" />
-  <title>Enter Time</title>
-
-  
-  <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.0/select2.min.css" />
-  <link rel="stylesheet" href="{{STATIC_URL}}css/foundation.css" />
-  <link rel="stylesheet" href="{{STATIC_URL}}css/default.css" />
-  
-
-  <script src="{{STATIC_URL}}js/vendor/custom.modernizr.js"></script>
-  <script src="{{STATIC_URL}}js/moment.min.js"></script>
-
-  <script src="http://twitter.github.com/hogan.js/builds/2.0.0/hogan-2.0.0.js"></script>
-  <script src="{{STATIC_URL}}js/templates.js"></script>
-
-</head>
-<body>
-
-  <header class="text-right">
-      <form method="POST" action="/logout/">
-        {% csrf_token %}
-        <span>{{ user.first_name }}&nbsp;{{ user.last_name }}&nbsp;&nbsp;|</span>
-        <a href="#" onclick="this.form.submit();return false;">Logout</a>
-      </form>
-  </header>
-
+{% extends "base.html" %}
+{% block title %}Enter Time{% endblock %}
+{% block content %}
 	<div class="row">
 		<div class="large-8 columns">
+      <button class="small radius calendar" type="button">&nbsp;</button>
       <button class="small radius" type="button" onclick="window.location='/'">Today</button>
 			<button class="small radius" type="button" onclick="window.location='/?weekId={{prev_weekId}}'">&lt;</button>
 			<button class="small radius" type="button" onclick="window.location='/?weekId={{next_weekId}}'">&gt;</button>
@@ -73,7 +45,7 @@
       			<div class="task-description">{% get_task_desc f.taskDefinitionId.value %} {{ f.rowId.errors }}</div>
       		</div>
           <div class="large-2 columns text-right">
-            <span class="delete">[X]</span>
+            <span class="delete" onclick="deletEntry(this);">[X]</span>
           </div>
           {{ f.taskDefinitionId }}
       		{{ f.rowId }}
@@ -151,9 +123,9 @@
     </div>
 
     <div class="row controls-row">
-      <div class="large-12 columns">
+      <div class="large-11 columns">
         <select id="task-select">
-          <option>Select a task</option>
+          <option value="">Select a task</option>
           {% for key,value in tasks_map.items %}
           <optgroup label="{{ key }}">
             {% for task in value %}
@@ -163,51 +135,13 @@
           {% endfor %}
         </select>
       </div>
-      <div class="large-1 columns"><button class="small radius" type="button" id="add-btn">Add</button></div>
+      <div class="large-2 columns"><button class="small radius" type="button" id="add-btn">Add</button></div>
       <div class="large-3 columns text-right">
         <button  class="small radius" type="submit" name="save" onclick="inputDirty = false;" id="save-btn">Save</button>
         <button  class="small radius" type="submit" name="complete" onclick="inputDirty = false;" id="complete-btn">Complete</button>
       </div>
     </div>
   </form>
-
-
-  <script src="{{STATIC_URL}}js/vendor/jquery.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/select2/3.4.0/select2.min.js"></script>
-  <script src="{{STATIC_URL}}js/foundation.min.js"></script>
-  <!--
-  
-  <script src="js/foundation/foundation.js"></script>
-  
-  <script src="js/foundation/foundation.alerts.js"></script>
-  
-  <script src="js/foundation/foundation.clearing.js"></script>
-  
-  <script src="js/foundation/foundation.cookie.js"></script>
-  
-  <script src="js/foundation/foundation.dropdown.js"></script>
-  
-  <script src="js/foundation/foundation.forms.js"></script>
-  
-  <script src="js/foundation/foundation.joyride.js"></script>
-  
-  <script src="js/foundation/foundation.magellan.js"></script>
-  
-  <script src="js/foundation/foundation.orbit.js"></script>
-  
-  <script src="js/foundation/foundation.reveal.js"></script>
-  
-  <script src="js/foundation/foundation.section.js"></script>
-  
-  <script src="js/foundation/foundation.tooltips.js"></script>
-  
-  <script src="js/foundation/foundation.topbar.js"></script>
-  
-  <script src="js/foundation/foundation.interchange.js"></script>
-  
-  <script src="js/foundation/foundation.placeholder.js"></script>
-  
-  -->
   
   <script>
 
@@ -338,7 +272,7 @@
 
       var taskDefinitionId = $('#task-select').val();
 
-      if (taskDefinitionId) {
+      if (taskDefinitionId && $.trim(taskDefinitionId).length > 0) {
         var taskDescription = $('#task-select option:selected').parent().attr('label');
         var taskName = $('#task-select option:selected').text();
 
@@ -351,8 +285,10 @@
 
         $('div.entry-rows').append(timeEntryRow.render(data));
 
-        $('div.hours input').unbind('keyup', hoursChanged);
-        $('div.hours input').keyup(hoursChanged);
+        inputDirty = true;
+
+        $('div.hours input').unbind('keyup', preventText);
+        $('div.hours input').keyup(preventText);
 
         $('div.hours input').unbind('keydown', preventText);
         $('div.hours input').keydown(preventText);
@@ -362,17 +298,16 @@
 
         formCount++;
 
-        inputDirty = true;
-
       }
 
     });
 
     // setup removing of rows
-    $('div.entry-row span.delete').click(function(){
-      var entryRow = $(this).parents('div.entry-row');
+    function deletEntry(btn) {
+      var entryRow = $(btn).parents('div.entry-row');
       //var taskName = $('div.task-name', entryRow).text();
       if (confirm('Are you sure you want to delete this row?')) {
+        console.log('deleting');
         entryRow.remove();
 
         // set form count to actual count
@@ -380,9 +315,7 @@
 
         inputDirty = true;
       }
-
-    });
+    }
 
   </script>
-</body>
-</html>
+{% endblock %}

@@ -300,8 +300,8 @@
 
         inputDirty = true;
 
-        $('div.hours input').unbind('keyup', preventText);
-        $('div.hours input').keyup(preventText);
+        $('div.hours input').unbind('keyup', updateTotals);
+        $('div.hours input').keyup(updateTotals);
 
         $('div.hours input').unbind('keydown', preventText);
         $('div.hours input').keydown(preventText);
@@ -327,6 +327,8 @@
         $('#id_form-TOTAL_FORMS').val($('div.entry-row').length);
 
         inputDirty = true;
+
+        updateTotals();
       }
     }
 

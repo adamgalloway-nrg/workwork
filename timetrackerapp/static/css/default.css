@@ -1,7 +1,26 @@
 
 header { background-color: #138ec0; height: 40px; margin-bottom: 10px; color: #FFF; }
 
-header a, header a:hover, header a:visited { padding: 10px; color: #FFF; display: inline-block; }
+header div.right-controls { font-size: 0.8em; }
+
+header .inline-list > li { margin: 0; height: 40px; }
+header .inline-list > li:hover { background-color: #0F729A; }
+
+header .inline-list > li:hover span,
+header .inline-list > li:hover form { border-left-color: #0F729A; }
+
+header .inline-list > li:hover ~ li span,
+header .inline-list > li:hover ~ li form { border-left-color: #138ec0; }
+
+header .inline-list > li:first-child span,
+header .inline-list > li:first-child form { border-left: none; }
+
+header .inline-list > li span,
+header .inline-list > li form { margin-top: 10px; padding-left: 0.6875em; padding-right: 0.6875em; border-left: 1px solid #FFF; }
+
+header a, header a:hover, header a:visited { color: #FFF; display: inline-block; }
+header form { margin: 0; }
+
 
 nav { padding-left: 10px;}
 
@@ -96,7 +115,9 @@ div.entry-row:nth-of-type(odd) div.comment-row { border-bottom: 1px dotted #dddd
 
 div.task-description { font-size: 0.75em; padding: 5px 0; }
 
-button, .button { background-color: #138ec0; }
+button, .button { background-color: #138ec0; border-color: #0F729A; }
+
+button:hover, button:focus, .button:hover, .button:focus { background-color: #0F729A; }
 
 /* custom switch color */
 div.switch span:last-child {
@@ -105,3 +126,7 @@ div.switch span:last-child {
 }
 
 div.item-switch { display:inline-block; min-width:120px; }
+
+form.custom .custom.dropdown.medium { max-width: 100%; }
+
+form.custom .custom.dropdown.open.medium ul { min-width: 100%; }

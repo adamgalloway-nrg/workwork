@@ -59,15 +59,30 @@
   </head> 
   <body>
     <header class="text-right">
-      <form method="POST" action="/logout/">
-        {% csrf_token %}
-        <span>{{ user.first_name }}&nbsp;{{ user.last_name }}&nbsp;&nbsp;|</span>
-        <a href="#" onclick="this.form.submit();return false;">Logout</a>
-      </form>
+        <div class="row">
+            <div class="small-8 columns left-controls">
+            </div>
+            <div class="small-8 columns right-controls">
+                <ul class="inline-list right">
+                    <li>
+                        <span>{{ user.first_name }}&nbsp;{{ user.last_name }}</span>
+                    </li>
+                    <li>
+                        <form method="POST" action="/logout/">
+                        {% csrf_token %}
+                        <a onclick="this.form.submit();return false;">Sign Out</a>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </header>
     {% autoescape off %}
       {% block content %}
       {% endblock %}
     {% endautoescape %}
+    <script>
+      $(document).foundation();
+    </script>
   </body>
 </html>

@@ -138,6 +138,20 @@ def get_tasks_map():
     # sort keys alphabetically
     return collections.OrderedDict(sorted(tasks_map.items()))
 
+def get_projects_map():
+    projects_map = {}
+    for project in Project.objects.order_by('name'):
+        project_group = project.customerName
+        if project.customerName.strip() != project.clientName.strip():
+            project_group += ' - ' + project.clientName
+
+        if project_group not in projects_map:
+            projects_map[project_group] = []
+        projects_map[project_group].append(project)
+
+    # sort keys alphabetically
+    return collections.OrderedDict(sorted(projects_map.items()))
+
 
 @login_required
 def index(request):
@@ -248,7 +262,13 @@ def manage_clients(request):
 @login_required
 def manage_projects(request):
 
-    return render_to_response('project.html', {'projects': Project.objects}, context_instance=RequestContext(request))
+    params = {
+        'projects_map': get_projects_map(),
+        'clients': Client.objects.order_by('name'),
+        'customers': Customer.objects.order_by('name')
+    }
+
+    return render_to_response('project.html', params, context_instance=RequestContext(request))
 
 @login_required
 def manage_tasks(request):

@@ -1,6 +1,17 @@
 {% extends "base.html" %}
 {% block title %}Enter Time{% endblock %}
 {% block content %}
+    <nav class="row">
+      <dl class="sub-nav">
+        <dt>Manage:</dt>
+        <dd><a href="/employee">Employees</a></dd>
+        <dd><a href="/customer">Customers</a></dd>
+        <dd><a href="/client">Clients</a></dd>
+        <dd><a href="/project">Projects</a></dd>
+        <dd><a href="/task">Tasks</a></dd>
+      </dl>
+    </nav>
+
 	<div class="row">
 		<div class="large-8 columns">
       <button class="small radius calendar" type="button">&nbsp;</button>

@@ -22,40 +22,16 @@
 
     <script src="{{STATIC_URL}}js/vendor/jquery.js"></script>
     <script src="{{STATIC_URL}}js/select2.min.js"></script>
-    <script src="{{STATIC_URL}}js/foundation.min.js"></script>
+
     <!--
-
-    <script src="js/foundation/foundation.js"></script>
-
-    <script src="js/foundation/foundation.alerts.js"></script>
-
-    <script src="js/foundation/foundation.clearing.js"></script>
-
-    <script src="js/foundation/foundation.cookie.js"></script>
-
-    <script src="js/foundation/foundation.dropdown.js"></script>
-
-    <script src="js/foundation/foundation.forms.js"></script>
-
-    <script src="js/foundation/foundation.joyride.js"></script>
-
-    <script src="js/foundation/foundation.magellan.js"></script>
-
-    <script src="js/foundation/foundation.orbit.js"></script>
-
-    <script src="js/foundation/foundation.reveal.js"></script>
-
-    <script src="js/foundation/foundation.section.js"></script>
-
-    <script src="js/foundation/foundation.tooltips.js"></script>
-
-    <script src="js/foundation/foundation.topbar.js"></script>
-
-    <script src="js/foundation/foundation.interchange.js"></script>
-
-    <script src="js/foundation/foundation.placeholder.js"></script>
-
+    <script src="{{STATIC_URL}}js/foundation.min.js"></script>
     -->
+
+    {% autoescape off %}
+      {% block extrahead %}
+      {% endblock %}
+    {% endautoescape %}
+
   </head> 
   <body>
     <header class="text-right">
@@ -81,8 +57,44 @@
       {% block content %}
       {% endblock %}
     {% endautoescape %}
+    <script src="{{STATIC_URL}}js/foundation/foundation.js"></script>
+
+    <script src="{{STATIC_URL}}js/foundation/foundation.alerts.js"></script>
+
+    <script src="{{STATIC_URL}}js/foundation/foundation.clearing.js"></script>
+
+    <script src="{{STATIC_URL}}js/foundation/foundation.cookie.js"></script>
+
+    <script src="{{STATIC_URL}}js/foundation/foundation.dropdown.js"></script>
+
+    <script src="{{STATIC_URL}}js/foundation/foundation.forms.js"></script>
+
+    <script src="{{STATIC_URL}}js/foundation/foundation.joyride.js"></script>
+
+    <script src="{{STATIC_URL}}js/foundation/foundation.magellan.js"></script>
+
+    <script src="{{STATIC_URL}}js/foundation/foundation.orbit.js"></script>
+
+    <script src="{{STATIC_URL}}js/foundation/foundation.reveal.js"></script>
+
+    <script src="{{STATIC_URL}}js/foundation/foundation.section.js"></script>
+
+    <script src="{{STATIC_URL}}js/foundation/foundation.tooltips.js"></script>
+
+    <script src="{{STATIC_URL}}js/foundation/foundation.topbar.js"></script>
+
+    <script src="{{STATIC_URL}}js/foundation/foundation.interchange.js"></script>
+
+    <script src="{{STATIC_URL}}js/foundation/foundation.placeholder.js"></script>
+
     <script>
       $(document).foundation();
     </script>
+
+    {% autoescape off %}
+        {% block extrabody %}
+        {% endblock %}
+    {% endautoescape %}
+
   </body>
 </html>

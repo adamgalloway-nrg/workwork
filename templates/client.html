@@ -1,5 +1,7 @@
 {% extends "base.html" %}
+
 {% block title %}Manage Clients{% endblock %}
+
 {% block content %}
     <nav class="row">
       <dl class="sub-nav">
@@ -87,7 +89,9 @@
       </p>
       <a class="close-reveal-modal">&#215;</a>
     </div>
+{% endblock %}
 
+{% block extrabody %}
     <script>
 
       function clearDialog() {

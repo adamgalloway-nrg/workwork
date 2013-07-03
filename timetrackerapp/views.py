@@ -152,6 +152,24 @@ def get_projects_map():
     # sort keys alphabetically
     return collections.OrderedDict(sorted(projects_map.items()))
 
+def get_projects_tasks_map():
+    projects_map = {}
+    for task in TaskDefinition.objects.order_by('name'):
+        project_group = task.customerName
+        if task.customerName.strip() != task.clientName.strip():
+            project_group += ' - ' + task.clientName
+
+        if project_group not in projects_map:
+            projects_map[project_group] = {}
+
+        if task.projectName not in projects_map[project_group]:
+            projects_map[project_group][task.projectName] = []
+
+        projects_map[project_group][task.projectName].append(task)
+
+    # sort keys alphabetically
+    return collections.OrderedDict(sorted(projects_map.items()))
+
 
 @login_required
 def index(request):
@@ -273,7 +291,12 @@ def manage_projects(request):
 @login_required
 def manage_tasks(request):
 
-    return render_to_response('task.html', {'tasks': TaskDefinition.objects}, context_instance=RequestContext(request))
+    params = {
+        'projects_map': get_projects_map(),
+        'projects_tasks_map' : get_projects_tasks_map()
+    }
+
+    return render_to_response('task.html', params, context_instance=RequestContext(request))
 
 @login_required
 def manage_employees(request):

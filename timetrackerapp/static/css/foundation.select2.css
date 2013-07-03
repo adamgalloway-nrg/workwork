@@ -1,0 +1,78 @@
+.select2-container .select2-choice {
+    background-image: none;
+    border-radius: 2px 2px 2px 2px;
+    /* foundation form.custom div.custom.dropdown a.current */
+    display: block;
+    width: auto;
+    line-height: 26px;
+    min-height: 28px;
+    padding: 0;
+    padding-left: 6px;
+    padding-right: 38px;
+    border: solid 1px #dddddd;
+    color: #141414;
+    background-color: white;
+    white-space: nowrap;
+}
+
+.select2-container .select2-choice div {
+    background: white;
+    border-left: 1px solid #DDDDDD;
+    /** foundation form.custom div.custom.dropdown a.selector */
+    /*border: 1px solid #DDDDDD;*/
+    display: block;
+    height: 28px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 27px;
+}
+
+.select2-container .select2-choice div b {
+    /* foundation form.custom div.custom.dropdown a.selector:after */
+    /*content: "";
+    display: block;
+    content: "";
+    display: block;*/
+    width: 0;
+    height: 0;
+    border: solid 5px;
+    border-color: #aaaaaa transparent transparent transparent;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-top: -2px;
+    margin-left: -5px;
+}
+
+.select2-results .select2-highlighted {
+    /* foundation form.custom div.custom.dropdown ul li.selected */
+    background: none repeat scroll 0 0 #CDEBF5;
+    color: black;
+}
+
+.select2-result-selectable .select2-match,
+.select2-result-unselectable .select2-result-selectable .select2-match {
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.select2-search input[type="text"]:focus {
+    background: url("images/select2/select2.png") no-repeat scroll 100% -22px transparent;
+}
+
+.select2-drop {
+    border-color: #cccccc;
+}
+
+.select2-search input  {
+    background-color: white;
+    border: 1px solid #cccccc;
+    border-radius: 2px 2px 2px 2px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) inset;
+}
+
+.select2-search { padding-top: 5px; }
+.select2-search input[type="text"] { margin-bottom: 0.6em; }
+
+.select2-container .select2-choice { padding-bottom: 3px; }

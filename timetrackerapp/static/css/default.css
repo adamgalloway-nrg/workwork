@@ -3,6 +3,8 @@ header { background-color: #138ec0; height: 40px; margin-bottom: 10px; color: #F
 
 header a, header a:hover, header a:visited { padding: 10px; color: #FFF; display: inline-block; }
 
+div.entry-row span.delete { font-size: 0.8em; color: #888; }
+
 div.sun-title,
 div.mon-title,
 div.tue-title,
@@ -43,6 +45,9 @@ div.row-total { padding-top: 5px; }
 
 div.comment input[type="text"],
 div.hours input[type="text"] { margin: 0 0 0.5em 0; }
+
+div.comment input[type="text"][data-dirty],
+div.hours input[type="text"][data-dirty] { border-color: #555; }
 
 div.sun-total span,
 div.mon-total span,

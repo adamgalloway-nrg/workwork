@@ -303,6 +303,11 @@ def manage_employees(request):
 
     return render_to_response('employee.html', {'employees': Employee.objects}, context_instance=RequestContext(request))
 
+@login_required
+def manage_pto(request):
+
+    return render_to_response('pto.html', {'employees': Employee.objects}, context_instance=RequestContext(request))
+
 
 # REQUIRES SQLITE
 # import os

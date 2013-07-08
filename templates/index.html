@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Enter Time{% endblock %}
 {% block content %}
+  {% if request.session.employee.admin == True %}
     <nav class="row">
       <dl class="sub-nav">
         <dt>Manage:</dt>
@@ -11,6 +12,7 @@
         <dd><a href="/task">Tasks</a></dd>
       </dl>
     </nav>
+  {% endif %}
 
 	<div class="row">
 		<div class="large-8 columns">
@@ -32,7 +34,7 @@
   <form method="POST" action="/?weekId={{ weekId }}">
     {% csrf_token %}
 
-    <div class="row title-row">
+    <div class="row title-row hide-for-small">
     	<div class="large-2 columns sun-title">{{ sunTitle }}<br/><b>Sun</b></div>
   		<div class="large-2 columns mon-title">{{ monTitle }}<br/><b>Mon</b></div>
   		<div class="large-2 columns tue-title">{{ tueTitle }}<br/><b>Tue</b></div>
@@ -65,48 +67,55 @@
         <!-- task hours -->
       	<div class="row hours-row">
       		<div class="large-2 columns sun hours {% if f.sundayHours.errors %}error{% endif %}">
+            <label class="show-for-small">Sun {{ sunTitle }}</label>
             {{ f.sundayHours }}
             {% if f.sundayHours.errors %}
             <small>{{ f.sundayHours.errors }}</small>
             {% endif %}
           </div>
       		<div class="large-2 columns mon hours {% if f.mondayHours.errors %}error{% endif %}">
+            <label class="show-for-small">Mon {{ monTitle }}</label>
             {{ f.mondayHours }}
             {% if f.mondayHours.errors %}
             <small>{{ f.mondayHours.errors }}</small>
             {% endif %}
           </div>
       		<div class="large-2 columns tue hours {% if f.tuesdayHours.errors %}error{% endif %}">
+            <label class="show-for-small">Tue {{ tueTitle }}</label>
             {{ f.tuesdayHours }}
             {% if f.tuesdayHours.errors %}
             <small>{{ f.tuesdayHours.errors }}</small>
             {% endif %}
           </div>
       		<div class="large-2 columns wed hours {% if f.wednesdayHours.errors %}error{% endif %}">
+            <label class="show-for-small">Wed {{ wedTitle }}</label>
             {{ f.wednesdayHours }}
             {% if f.wednesdayHours.errors %}
             <small>{{ f.wednesdayHours.errors }}</small>
             {% endif %}
           </div>
       		<div class="large-2 columns thu hours {% if f.thursdayHours.errors %}error{% endif %}">
+            <label class="show-for-small">Thu {{ thuTitle }}</label>
             {{ f.thursdayHours }}
             {% if f.thursdayHours.errors %}
             <small>{{ f.thursdayHours.errors }}</small>
             {% endif %}
           </div>
       		<div class="large-2 columns fri hours {% if f.fridayHours.errors %}error{% endif %}">
+            <label class="show-for-small">Fri {{ friTitle }}</label>
             {{ f.fridayHours }}
             {% if f.fridayHours.errors %}
             <small>{{ f.fridayHours.errors }}</small>
             {% endif %}
           </div>
       		<div class="large-2 columns sat hours {% if f.saturdayHours.errors %}error{% endif %}">
+            <label class="show-for-small">Sat {{ satTitle }}</label>
             {{ f.saturdayHours }}
             {% if f.saturdayHours.errors %}
             <small>{{ f.saturdayHours.errors }}</small>
             {% endif %}
           </div>
-      		<div class="large-2 columns row-total"></div>
+      		<div class="large-2 columns row-total hide-for-small"></div>
       	</div>
 
         <!-- task comment -->
@@ -122,7 +131,7 @@
       {% endfor %}
     </div>
 
-    <div class="row grand-total-row">
+    <div class="row grand-total-row hide-for-small">
       <div class="large-2 columns sun-total"><span></span></div>
       <div class="large-2 columns mon-total"><span></span></div>
       <div class="large-2 columns tue-total"><span></span></div>

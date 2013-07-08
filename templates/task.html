@@ -44,6 +44,58 @@
               </select>
             </div>
         </div>
+
+        <div class="row">
+            <div class="large-4 columns">
+              <label>Comments Required</label>
+              <div class="switch radius">
+                <input id="commentRequired" name="commentRequired" value="False" type="radio" checked>
+                <label for="commentRequired" onclick="">No</label>
+
+                <input id="commentRequired1" name="commentRequired" value="True" type="radio">
+                <label for="commentRequired1" onclick="">Yes</label>
+
+                <span></span>
+              </div>
+            </div>
+            <div class="large-4 columns">
+              <label>Billable</label>
+              <div class="switch radius">
+                <input id="billable" name="billable" value="False" type="radio" checked>
+                <label for="billable" onclick="">No</label>
+
+                <input id="billable1" name="billable" value="True" type="radio">
+                <label for="billable1" onclick="">Yes</label>
+
+                <span></span>
+              </div>
+            </div>
+            <div class="large-4 columns">
+              <label>Paid Time Off</label>
+              <div class="switch radius">
+                <input id="pto" name="pto" value="False" type="radio" checked>
+                <label for="pto" onclick="">No</label>
+
+                <input id="pto1" name="pto" value="True" type="radio">
+                <label for="pto1" onclick="">Yes</label>
+
+                <span></span>
+              </div>
+            </div>
+            <div class="large-4 columns">
+              <label>Disabled</label>
+              <div class="switch radius">
+                <input id="disabled" name="disabled" value="False" type="radio" checked>
+                <label for="disabled" onclick="">No</label>
+
+                <input id="disabled1" name="disabled" value="True" type="radio">
+                <label for="disabled1" onclick="">Yes</label>
+
+                <span></span>
+              </div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="large-16 columns text-right">
               <button class="small radius" name="add" type="submit">Add</button>
@@ -69,14 +121,14 @@
               </thead>
 
               {% for key2,tasks in project_group.items %}
-                <thead>
+                <thead class="sub-header">
                   <tr>
-                    <th class="large-16 sub-header" colspan="2">{{key2}}</th>
+                    <th class="large-16" colspan="2">{{key2}}</th>
                   </tr>
                 </thead>
                 <tbody>
                 {% for item in tasks %}
-                  <tr class="item" data-id="{{ item.id }}" data-name="{{ item.name }}" data-projectid="{{ item.projectId }}">
+                  <tr class="item" data-id="{{ item.id }}" data-name="{{ item.name }}" data-projectid="{{ item.projectId }}" data-commentRequired="{{ item.commentRequired }}" data-billable="{{ item.billable }}" data-pto="{{ item.pto }}" data-disabled="{{ item.disabled }}">
                     <td class="large-14">{{ item.name }}</td>
                     <td class="large-2 text-center">
                       <button type="button" class="tiny radius edit">Edit</button>
@@ -116,6 +168,58 @@
           {% endfor %}
         </select>
       </p>
+      <div>
+          <div class="item-switch">
+            <label>Comment Required</label>
+            <div class="switch radius">
+              <input id="item-commentRequired" name="item-commentRequired" value="False" type="radio" checked/>
+              <label for="item-commentRequired" onclick="">No</label>
+
+              <input id="item-commentRequired1" name="item-commentRequired" value="True" type="radio"/>
+              <label for="item-commentRequired1" onclick="">Yes</label>
+
+              <span></span>
+            </div>
+          </div>
+          <div class="item-switch">
+            <label>Billable</label>
+            <div class="switch radius">
+              <input id="item-billable" name="item-billable" type="radio" value="False" checked/>
+              <label for="item-billable" onclick="">No</label>
+
+              <input id="item-billable1" name="item-billable" value="True" type="radio"/>
+              <label for="item-billable1" onclick="">Yes</label>
+
+              <span></span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="item-switch">
+            <label>Paid Time Off</label>
+            <div class="switch radius">
+              <input id="item-pto" name="item-pto" value="False" type="radio" checked/>
+              <label for="item-active" onclick="">No</label>
+
+              <input id="item-pto1" name="item-pto" value="True" type="radio"/>
+              <label for="item-pto1" onclick="">Yes</label>
+
+              <span></span>
+            </div>
+          </div>
+          <div class="item-switch">
+            <label>Disabled</label>
+            <div class="switch radius">
+              <input id="item-disabled" name="item-disabled" type="radio" value="False" checked/>
+              <label for="item-disabled" onclick="">No</label>
+
+              <input id="item-disabled1" name="item-disabled" value="True" type="radio"/>
+              <label for="item-disabled1" onclick="">Yes</label>
+
+              <span></span>
+            </div>
+          </div>
+        </div>
       <p class="text-right">
         <button class="small radius cancel" type="button" data-dialog-id="edit-dialog">Cancel</button>
         <button class="small radius save" type="button">Save</button>
@@ -149,6 +253,30 @@
         $('#edit-dialog input.item-id').val(target.attr('data-id'));
         $('#edit-dialog input.item-name').val(target.attr('data-name'));
         $('select[name="item-projectId"]').select2('val', target.attr('data-projectid'));
+
+        if (target.attr('data-commentRequired') == 'True') {
+          $('#edit-dialog input[name="item-commentRequired"][value="True"]').prop('checked', true);
+        } else {
+          $('#edit-dialog input[name="item-commentRequired"][value="False"]').prop('checked', true);
+        }
+        
+        if (target.attr('data-billable') == 'True') {
+          $('#edit-dialog input[name="item-billable"][value="True"]').prop('checked', true);
+        } else {
+          $('#edit-dialog input[name="item-billable"][value="False"]').prop('checked', true);
+        }
+
+        if (target.attr('data-pto') == 'True') {
+          $('#edit-dialog input[name="item-pto"][value="True"]').prop('checked', true);
+        } else {
+          $('#edit-dialog input[name="item-pto"][value="False"]').prop('checked', true);
+        }
+        
+        if (target.attr('data-disabled') == 'True') {
+          $('#edit-dialog input[name="item-disabled"][value="True"]').prop('checked', true);
+        } else {
+          $('#edit-dialog input[name="item-disabled"][value="False"]').prop('checked', true);
+        }
       }
       
       $('#edit-dialog').foundation('reveal');

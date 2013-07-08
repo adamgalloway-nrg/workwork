@@ -19,6 +19,8 @@ develop-eggs
 lib
 lib64
 
+logo.png
+
 # Installer logs
 pip-log.txt
 

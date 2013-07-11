@@ -1,6 +1,7 @@
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.views.generic import ListView
+from django.http import HttpResponse
 from models import Post
 from models import Client, Comment, Customer, Employee, PaidTimeOff, Project, TaskDefinition, TimeEntry, WeekEntry
 from forms import TimeEntryForm
@@ -8,6 +9,7 @@ import datetime
 import calendar
 import math
 import decimal
+import json
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.forms.formsets import formset_factory
@@ -170,6 +172,29 @@ def get_projects_tasks_map():
     # sort keys alphabetically
     return collections.OrderedDict(sorted(projects_map.items()))
 
+def get_pto_map(year):
+    pto_map = {}
+
+    task_map = {}
+    for task in TaskDefinition.objects(pto=True):
+        task_map[task.id] = task
+
+    for employee in Employee.objects.order_by('email'):
+        email = employee.email
+        if employee not in pto_map:
+            pto_map[employee] = []
+
+        for task_id in task_map.keys():
+            pto, created = PaidTimeOff.objects.get_or_create(year=year,employee=email,taskDefinitionId=task_id,defaults={'hours': 0})
+            item = {
+                'pto': pto,
+                'task': task_map[task_id]
+            }
+
+            pto_map[employee].append(item)
+
+    return collections.OrderedDict(sorted(pto_map.items(), key=lambda emp: emp[0].name));
+
 
 @login_required
 def index(request):
@@ -180,7 +205,7 @@ def index(request):
     else:
         weekId = request.REQUEST['weekId']
 
-        if math.isnan(float(weekId)):
+        if math.isnan(int(weekId)):
             return redirect('/?weekId=' + get_current_weekId())
 
         sunDate, monDate, tueDate, wedDate, thuDate, friDate, satDate = get_week_dates(weekId)
@@ -306,7 +331,33 @@ def manage_employees(request):
 @login_required
 def manage_pto(request):
 
-    return render_to_response('pto.html', {'employees': Employee.objects}, context_instance=RequestContext(request))
+    if 'year' not in request.REQUEST or not request.REQUEST['year']:
+        date = datetime.datetime.now()
+        return redirect('/pto/?year=' + str(date.year))
+    else:
+        year = request.REQUEST['year']
+
+        if math.isnan(int(year)):
+            date = datetime.datetime.now()
+            return redirect('/pto/?year=' + str(date.year))
+
+        if request.is_ajax() and request.method == 'POST':
+            ptos = json.loads(request.body)
+            print str(ptos)
+            for pto in ptos:
+                PaidTimeOff(id=pto['id'],employee=pto['employee'],hours=pto['hours'],year=year,taskDefinitionId=pto['taskDefinitionId']).save()
+            return HttpResponse(status=204)
+
+
+        params = {
+            'employees': Employee.objects,
+            'pto_map': get_pto_map(year),
+            'year': int(year),
+            'prev_year': int(year) - 1,
+            'next_year': int(year) + 1
+        }
+
+        return render_to_response('pto.html', params, context_instance=RequestContext(request))
 
 
 # REQUIRES SQLITE

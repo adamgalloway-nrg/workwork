@@ -29,6 +29,8 @@ nav { padding-left: 10px;}
 
 .sub-nav dt.active a, .sub-nav dd.active a { background: #138ec0; }
 
+.sub-nav dt a:hover, .sub-nav dd a:hover { text-decoration: underline; }
+
 button.calendar { 
 	background-image: url(/static/img/Calendar_font_awesome.svg);
 	background-repeat:no-repeat;

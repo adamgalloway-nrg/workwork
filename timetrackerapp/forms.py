@@ -42,8 +42,8 @@ class TimeEntryForm(forms.Form):
 class EmployeeForm(forms.Form):
     email = forms.EmailField(widget=forms.TextInput(attrs={'placeholder':'Enter an email address','required':'required'}), required=True, max_length=120)
     name = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Enter a name','required':'required'}), required=True, max_length=120)
-    active = forms.BooleanField()
-    admin = forms.BooleanField()
+    active = forms.BooleanField(required=False)
+    admin = forms.BooleanField(required=False)
     startDate = forms.DateField(widget=forms.DateInput(format="%m/%d/%Y",attrs={'placeholder':'mm/dd/yyyy','required':'required'}), required=True)
 
 

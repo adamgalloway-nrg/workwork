@@ -14,6 +14,7 @@ from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.forms.formsets import formset_factory
 import collections
+from django.forms.util import ErrorList
 
 
 
@@ -294,6 +295,50 @@ def index(request):
 
 @login_required
 def manage_customers(request):
+    employee = get_employee(request)
+    if employee.admin != True:
+        return redirect('/')
+
+    if request.method == 'DELETE':
+        customer_id = request.REQUEST['id']
+        if len(Project.objects(customerId=customer_id)) > 0:
+            return HttpResponse(status=400)
+        else:
+            Customer.objects.get(id=customer_id).delete()
+            return HttpResponse(status=204)
+
+    if request.method == 'PUT':
+        try:
+            request.method = "POST"
+            request._load_post_and_files()
+            request.method = "PUT"
+        except AttributeError:
+            request.META['REQUEST_METHOD'] = 'POST'
+            request._load_post_and_files()
+            request.META['REQUEST_METHOD'] = 'PUT'
+            
+        request.PUT = request.POST
+
+        form = CustomerForm(request.PUT)
+        if form.is_valid() and request.REQUEST['id']:
+            # update item
+
+            Customer.objects(id=request.REQUEST['id']).update_one(
+                set__name=form.cleaned_data['name'],
+                set__invoicingId=form.cleaned_data['invoicingId']
+            )
+
+            # update name on projects and tasks
+            Project.objects(customerId=request.REQUEST['id']).update(set__customerName=form.cleaned_data['name'])
+            TaskDefinition.objects(customerId=request.REQUEST['id']).update(set__customerName=form.cleaned_data['name'])
+
+            # Always redirect after a POST
+            return HttpResponse(status=204)
+        else:
+            print form.errors
+            return HttpResponse(status=400)
+
+
     if request.method == 'POST':
         form = CustomerForm(request.POST)
         if form.is_valid():
@@ -318,6 +363,47 @@ def manage_customers(request):
 
 @login_required
 def manage_clients(request):
+    employee = get_employee(request)
+    if employee.admin != True:
+        return redirect('/')
+
+    if request.method == 'DELETE':
+        client_id = request.REQUEST['id']
+        if len(Project.objects(clientId=client_id)) > 0:
+            return HttpResponse(status=400)
+        else:
+            Client.objects.get(id=client_id).delete()
+            return HttpResponse(status=204)
+
+    if request.method == 'PUT':
+        try:
+            request.method = "POST"
+            request._load_post_and_files()
+            request.method = "PUT"
+        except AttributeError:
+            request.META['REQUEST_METHOD'] = 'POST'
+            request._load_post_and_files()
+            request.META['REQUEST_METHOD'] = 'PUT'
+            
+        request.PUT = request.POST
+
+        form = ClientForm(request.PUT)
+        if form.is_valid() and request.REQUEST['id']:
+            # update item
+
+            Client.objects(id=request.REQUEST['id']).update_one(set__name=form.cleaned_data['name'])
+
+            # update name on projects and tasks
+            Project.objects(clientId=request.REQUEST['id']).update(set__clientName=form.cleaned_data['name'])
+            TaskDefinition.objects(clientId=request.REQUEST['id']).update(set__clientName=form.cleaned_data['name'])
+
+            # Always redirect after a POST
+            return HttpResponse(status=204)
+        else:
+            print form.errors
+            return HttpResponse(status=400)
+
+
     if request.method == 'POST':
         form = ClientForm(request.POST)
         if form.is_valid():
@@ -339,6 +425,62 @@ def manage_clients(request):
 
 @login_required
 def manage_projects(request):
+    employee = get_employee(request)
+    if employee.admin != True:
+        return redirect('/')
+
+    if request.method == 'DELETE':
+        project_id = request.REQUEST['id']
+        if len(TaskDefinition.objects(projectId=project_id)) > 0:
+            return HttpResponse(status=400)
+        else:
+            Project.objects.get(id=project_id).delete()
+            return HttpResponse(status=204)
+
+    if request.method == 'PUT':
+        try:
+            request.method = "POST"
+            request._load_post_and_files()
+            request.method = "PUT"
+        except AttributeError:
+            request.META['REQUEST_METHOD'] = 'POST'
+            request._load_post_and_files()
+            request.META['REQUEST_METHOD'] = 'PUT'
+            
+        request.PUT = request.POST
+
+        form = ProjectForm(request.PUT)
+        if form.is_valid() and request.REQUEST['id']:
+            # update item
+            customer_name = Customer.objects.get(id=form.cleaned_data['customerId']).name
+            client_name = Client.objects.get(id=form.cleaned_data['clientId']).name
+
+            Project.objects(id=request.REQUEST['id']).update_one(
+                set__name=form.cleaned_data['name'],
+                set__contract=form.cleaned_data['contract'],
+                set__customerId=form.cleaned_data['customerId'],
+                set__customerName=customer_name,
+                set__clientId=form.cleaned_data['clientId'],
+                set__clientName=client_name
+            )
+
+            # update project name, customer id/name, client id/name on task
+            TaskDefinition.objects(projectId=request.REQUEST['id']).update(
+                set__projectName=form.cleaned_data['name'],
+                set__customerId=form.cleaned_data['customerId'],
+                set__customerName=customer_name,
+                set__clientId=form.cleaned_data['clientId'],
+                set__clientName=client_name
+            )
+
+
+            # Always redirect after a POST
+            return HttpResponse(status=204)
+        else:
+            print form.errors
+            return HttpResponse(status=400)
+
+
     if request.method == 'POST':
         form = ProjectForm(request.POST)
         if form.is_valid():
@@ -355,6 +497,8 @@ def manage_projects(request):
             ).save()
             # Always redirect after a POST
             return redirect('/project')
+        else:
+            print form.errors
 
     else:
         # This the the first page load, display a blank form
@@ -371,11 +515,17 @@ def manage_projects(request):
 
 @login_required
 def manage_tasks(request):
+    employee = get_employee(request)
+    if employee.admin != True:
+        return redirect('/')
 
     if request.method == 'DELETE':
         task_id = request.REQUEST['id']
-        TaskDefinition.objects.get(id=task_id).delete()
-        return HttpResponse(status=204)
+        if len(TimeEntry.objects(taskDefinitionId=task_id)) > 0:
+            return HttpResponse(status=400)
+        else:
+            TaskDefinition.objects.get(id=task_id).delete()
+            return HttpResponse(status=204)
 
     if request.method == 'PUT':
         try:
@@ -392,23 +542,21 @@ def manage_tasks(request):
         form = TaskForm(request.PUT)
         if form.is_valid() and request.REQUEST['id']:
             # update item
-            task = TaskDefinition.objects.get(id=request.REQUEST['id'])
             project = Project.objects.get(id=form.cleaned_data['projectId'])
 
-            TaskDefinition(
-                id=request.REQUEST['id'],
-                name=form.cleaned_data['name'],
-                customerId=project.customerId,
-                customerName=project.customerName,
-                clientId=project.clientId,
-                clientName=project.clientName,
-                projectId=form.cleaned_data['projectId'],
-                projectName=project.name,
-                disabled=form.cleaned_data['disabled'],
-                billable=form.cleaned_data['billable'],
-                pto=form.cleaned_data['pto'],
-                commentRequired=form.cleaned_data['commentRequired']
-            ).save()
+            TaskDefinition.objects(id=request.REQUEST['id']).update_one(
+                set__name=form.cleaned_data['name'],
+                set__customerId=project.customerId,
+                set__customerName=project.customerName,
+                set__clientId=project.clientId,
+                set__clientName=project.clientName,
+                set__projectId=form.cleaned_data['projectId'],
+                set__projectName=project.name,
+                set__disabled=form.cleaned_data['disabled'],
+                set__billable=form.cleaned_data['billable'],
+                set__pto=form.cleaned_data['pto'],
+                set__commentRequired=form.cleaned_data['commentRequired']
+            )
             # Always redirect after a POST
             return HttpResponse(status=204)
         else:
@@ -454,19 +602,70 @@ def manage_tasks(request):
 
 @login_required
 def manage_employees(request):
+    employee = get_employee(request)
+    if employee.admin != True:
+        return redirect('/')
+
+    if request.method == 'DELETE':
+        employee_id = request.REQUEST['id']
+        employee = Employee.objects.get(id= employee_id)
+
+        if len(TimeEntry.objects(employee=employee.email)) > 0:
+            return HttpResponse(status=400)
+        else:
+            Employee.objects.get(id=employee_id).delete()
+            return HttpResponse(status=204)
+
+
+    if request.method == 'PUT':
+        try:
+            request.method = "POST"
+            request._load_post_and_files()
+            request.method = "PUT"
+        except AttributeError:
+            request.META['REQUEST_METHOD'] = 'POST'
+            request._load_post_and_files()
+            request.META['REQUEST_METHOD'] = 'PUT'
+            
+        request.PUT = request.POST
+
+        form = EmployeeForm(request.PUT)
+        if form.is_valid() and request.REQUEST['id']:
+            # update item
+
+            Employee.objects(id=request.REQUEST['id']).update_one(
+                set__name=form.cleaned_data['name'],
+                set__active=form.cleaned_data['active'],
+                set__admin=form.cleaned_data['admin'],
+                set__startDate=form.cleaned_data['startDate']
+            )
+            # Always redirect after a POST
+            return HttpResponse(status=204)
+        else:
+            print form.errors
+            return HttpResponse(status=400)
+
+
     if request.method == 'POST':
         form = EmployeeForm(request.POST)
         if form.is_valid():
             # create a new item
-            Employee(
-                email=form.cleaned_data['email'],
-                name=form.cleaned_data['name'],
-                active=form.cleaned_data['active'],
-                admin=form.cleaned_data['admin'],
-                startDate=form.cleaned_data['startDate']
-            ).save()
-            # Always redirect after a POST
-            return redirect('/employee')
+            try:
+                Employee(
+                    email=form.cleaned_data['email'],
+                    name=form.cleaned_data['name'],
+                    active=form.cleaned_data['active'],
+                    admin=form.cleaned_data['admin'],
+                    startDate=form.cleaned_data['startDate']
+                ).save()
+                # Always redirect after a POST
+                return redirect('/employee')
+            except Exception, e:
+                errors = form._errors.setdefault('email', ErrorList())
+                errors.append(u"Duplicate Address")
+
+        else:
+            print form.errors
 
     else:
         # This the the first page load, display a blank form
@@ -481,6 +680,9 @@ def manage_employees(request):
 
 @login_required
 def manage_pto(request):
+    employee = get_employee(request)
+    if employee.admin != True:
+        return redirect('/')
 
     if 'year' not in request.REQUEST or not request.REQUEST['year']:
         date = datetime.datetime.now()

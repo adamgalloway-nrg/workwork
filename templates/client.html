@@ -24,7 +24,7 @@
       <form method="POST">
         {% csrf_token %}
         <div class="row">
-          <div class="large-16 columns">
+          <div class="large-16 columns {% if form.name.errors %}error{% endif %}">
             <label>Name</label>
             {{ form.name }}
             {% if form.name.errors %}
@@ -75,8 +75,8 @@
       <h2>Edit Client</h2>
       <p>
         <label>Name</label>
-        <input class="item-name" type="text" placeholder="Enter a name" required />
-        <input class="item-id" type="hidden" />
+        <input class="item-name" type="text" name="name" placeholder="Enter a name" required />
+        <input class="item-id" type="hidden" name="id" />
       </p>
       <p class="text-right">
         <button class="small radius cancel" type="button" data-dialog-id="edit-dialog">Cancel</button>
@@ -112,6 +112,7 @@
       $('#edit-success-dialog').foundation('reveal');
 
       $('#edit-dialog').on('close', clearDialog);
+      $('#edit-success-dialog').on('close', function(){ window.location.href = '/client'; });
 
       $('button.edit').click(function(event){
         var target = $(this);
@@ -124,15 +125,40 @@
         var row = target.parents('tr.item');
         var id = row.attr('data-id');
 
-        if (confirm('Are you sure you want to delete this?')) {
-          //TODO delete it
+        if (confirm('Are you sure you want to delete this client?')) {
+          // delete it
+          $.ajax({
+            url: '/client?id=' + id,
+            type: 'DELETE',
+            success: function() {
+              alert("Client deleted successfully");
+              window.location.href = '/client';
+            },
+            error: function(jqXHR) {
+              alert(jqXHR.status == 400 ? "The client could not be deleted, there are projects assigned to it." : "There was an error, the client could not be deleted.");
+            }
+          });
         }
       });
 
       $('#edit-dialog button.save').click(function(event){
-        //TODO save the data
-        // open success dialog
-        $('#edit-success-dialog').foundation('reveal', 'open');
+
+        var data = $('input, textarea, select', '#edit-dialog').serialize();
+        var id = $('#edit-dialog input.item-id').val();
+
+        $.ajax({
+            url: '/client?id=' + id,
+            type: 'PUT',
+            data: data,
+            success: function() {
+              // open success dialog
+              $('#edit-success-dialog').foundation('reveal', 'open');
+            },
+            error: function() {
+              alert("The client could not be updated");
+            }
+          });
+
       });
 
       $('button.cancel').click(function(event){

@@ -165,7 +165,6 @@
       <p>
         <label>Project</label>
         <select name="projectId" class="medium" data-customforms="disabled" required>
-          <option value="">Select a project</option>
           {% for key1,value in projects_map.items %}
             <optgroup label="{{ key1 }}">
               {% for proj in value %}
@@ -287,9 +286,10 @@
       }
       
       $('#edit-dialog').foundation('reveal');
-      $('#edit-success-dialog').foundation('reveal', { close: function(){ window.location.href = '/task'; } });
+      $('#edit-success-dialog').foundation('reveal');
 
       $('#edit-dialog').on('close', clearDialog);
+      $('#edit-success-dialog').on('close', function(){ window.location.href = '/task'; });
 
       $('button.edit').click(function(event){
         var target = $(this);
@@ -303,7 +303,7 @@
         var id = row.attr('data-id');
 
         if (confirm('Are you sure you want to delete this task?')) {
-          //TODO delete it
+          // delete it
           $.ajax({
             url: '/task?id=' + id,
             type: 'DELETE',
@@ -311,8 +311,8 @@
               alert("Task deleted successfully");
               window.location.href = '/task';
             },
-            error: function() {
-              alert("The task could not be deleted");
+            error: function(jqXHR) {
+              alert(jqXHR.status == 400 ? "The task could not be deleted, there is time entered against it." : "There was an error, the task could not be deleted.");
             }
           });
         }

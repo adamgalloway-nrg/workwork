@@ -29,7 +29,7 @@ class Customer(Document):
 
 class Employee(Document):
 	#active,admin,name,id,startDate
-	email = EmailField(db_field='key',max_length=120, required=True)
+	email = EmailField(db_field='key',max_length=120, required=True, unique=True)
 	name = StringField(max_length=120, required=True)
 	active = BooleanField(required=True, default=True)
 	admin = BooleanField(required=True, default=False)

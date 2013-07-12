@@ -26,11 +26,17 @@
         <div class="row">
             <div class="large-8 columns">
               <label>Name</label>
-              <input type="text" name="name" placeholder="Enter a name" required />
+              {{ form.name }}
+              {% if form.name.errors %}
+              <small>{{ form.name.errors }}</small>
+              {% endif %}
             </div>
             <div class="large-8 columns">
               <label>Invoicing Id</label>
-              <input type="text" name="invoicingId" placeholder="Enter an invoicing id" />
+              {{ form.invoicingId }}
+              {% if form.invoicingId.errors %}
+              <small>{{ form.invoicingId.errors }}</small>
+              {% endif %}
             </div>
         </div>
         <div class="row">

@@ -23,33 +23,45 @@
       <form method="POST" class="custom">
         {% csrf_token %}
         <div class="row">
-            <div class="large-8 columns">
+            <div class="large-8 columns {% if form.name.errors %}error{% endif %}">
               <label>Name</label>
-              <input type="text" name="name" placeholder="Enter a name" required />
+              {{ form.name }}
+              {% if form.name.errors %}
+              <small>{{ form.name.errors }}</small>
+              {% endif %}
             </div>
-            <div class="large-8 columns">
+            <div class="large-8 columns {% if form.contract.errors %}error{% endif %}">
               <label>Contract</label>
-              <input type="text" name="contract" placeholder="Enter a contract name or number" />
+              {{ form.contract }}
+              {% if form.contract.errors %}
+              <small>{{ form.contract.errors }}</small>
+              {% endif %}
             </div>
         </div>
         <div class="row">
-            <div class="large-8 columns">
+            <div class="large-8 columns {% if form.customerId.errors %}error{% endif %}">
               <label>Customer</label>
-              <select name="customerId" class="medium">
+              <select name="customerId" class="medium" required>
                 <option value="">Select a customer</option>
                 {% for customer in customers %}
                 <option value="{{ customer.id }}">{{ customer.name }}</option>
                 {% endfor %}
               </select>
+              {% if form.customerId.errors %}
+              <small>{{ form.customerId.errors }}</small>
+              {% endif %}
             </div>
-            <div class="large-8 columns">
+            <div class="large-8 columns {% if form.clientId.errors %}error{% endif %}">
               <label>Client</label>
-              <select name="clientId" class="medium">
-                <option value="">Select a client (optional)</option>
+              <select name="clientId" class="medium" required>
+                <option value="">Select a client</option>
                 {% for client in clients %}
                 <option value="{{ client.id }}">{{ client.name }}</option>
                 {% endfor %}
               </select>
+              {% if form.clientId.errors %}
+              <small>{{ form.clientId.errors }}</small>
+              {% endif %}
             </div>
         </div>
         <div class="row">

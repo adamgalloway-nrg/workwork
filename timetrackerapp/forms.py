@@ -37,3 +37,37 @@ class TimeEntryForm(forms.Form):
         task = TaskDefinition.objects.get(id=ObjectId(task_id_string))
         if task.commentRequired:
             self.validate_required_field(cleaned_data, 'comment')
+
+
+class EmployeeForm(forms.Form):
+    email = forms.EmailField(widget=forms.TextInput(attrs={'placeholder':'Enter an email address','required':'required'}), required=True, max_length=120)
+    name = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Enter a name','required':'required'}), required=True, max_length=120)
+    active = forms.BooleanField()
+    admin = forms.BooleanField()
+    startDate = forms.DateField(widget=forms.DateInput(format="%m/%d/%Y",attrs={'placeholder':'mm/dd/yyyy','required':'required'}), required=True)
+
+
+class ClientForm(forms.Form):
+    name = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Enter a name','required':'required'}), required=True, max_length=120)
+
+
+class CustomerForm(forms.Form):
+    name = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Enter a name','required':'required'}), required=True, max_length=120)
+    invoicingId = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Enter an invoicing id'}), required=False, max_length=120)
+
+
+class ProjectForm(forms.Form):
+    name = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Enter a name','required':'required'}), required=True, max_length=120)
+    contract = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Enter a contract name or number'}), required=False, max_length=120)
+    customerId = forms.CharField(required=True, max_length=120)
+    clientId = forms.CharField(required=True, max_length=120)
+
+
+class TaskForm(forms.Form):
+    name = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Enter a name','required':'required'}), required=True, max_length=120)
+    projectId = forms.CharField(required=True, max_length=120)
+    disabled = forms.BooleanField(required=False)
+    billable = forms.BooleanField(required=False)
+    pto = forms.BooleanField(required=False)
+    commentRequired = forms.BooleanField(required=False)
+

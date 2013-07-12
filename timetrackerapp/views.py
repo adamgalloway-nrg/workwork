@@ -4,7 +4,7 @@ from django.views.generic import ListView
 from django.http import HttpResponse
 from models import Post
 from models import Client, Comment, Customer, Employee, PaidTimeOff, Project, TaskDefinition, TimeEntry, WeekEntry
-from forms import TimeEntryForm
+from forms import TimeEntryForm, EmployeeForm, ClientForm, CustomerForm, ProjectForm, TaskForm
 import datetime
 import calendar
 import math
@@ -294,21 +294,77 @@ def index(request):
 
 @login_required
 def manage_customers(request):
+    if request.method == 'POST':
+        form = CustomerForm(request.POST)
+        if form.is_valid():
+            # create a new item
+            Customer(
+                name=form.cleaned_data['name'],
+                invoicingId=form.cleaned_data['invoicingId']
+            ).save()
+            # Always redirect after a POST
+            return redirect('/customer')
 
-    return render_to_response('customer.html', {'customers': Customer.objects}, context_instance=RequestContext(request))
+    else:
+        # This the the first page load, display a blank form
+        form = CustomerForm()
+
+    params = {
+        'customers': Customer.objects,
+        'form': form
+    }
+
+    return render_to_response('customer.html', params, context_instance=RequestContext(request))
 
 @login_required
 def manage_clients(request):
+    if request.method == 'POST':
+        form = ClientForm(request.POST)
+        if form.is_valid():
+            # create a new item
+            Client(name=form.cleaned_data['name']).save()
+            # Always redirect after a POST
+            return redirect('/client')
 
-    return render_to_response('client.html', {'clients': Client.objects}, context_instance=RequestContext(request))
+    else:
+        # This the the first page load, display a blank form
+        form = ClientForm()
+
+    params = {
+        'clients': Client.objects,
+        'form': form
+    }
+
+    return render_to_response('client.html', params, context_instance=RequestContext(request))
 
 @login_required
 def manage_projects(request):
+    if request.method == 'POST':
+        form = ProjectForm(request.POST)
+        if form.is_valid():
+            # create a new item
+            customer_name = Customer.objects.get(id=form.cleaned_data['customerId']).name
+            client_name = Client.objects.get(id=form.cleaned_data['clientId']).name
+            Project(
+                name=form.cleaned_data['name'],
+                contract=form.cleaned_data['contract'],
+                customerId=form.cleaned_data['customerId'],
+                customerName=customer_name,
+                clientId=form.cleaned_data['clientId'],
+                clientName=client_name
+            ).save()
+            # Always redirect after a POST
+            return redirect('/project')
+
+    else:
+        # This the the first page load, display a blank form
+        form = ProjectForm()
 
     params = {
         'projects_map': get_projects_map(),
         'clients': Client.objects.order_by('name'),
-        'customers': Customer.objects.order_by('name')
+        'customers': Customer.objects.order_by('name'),
+        'form': form
     }
 
     return render_to_response('project.html', params, context_instance=RequestContext(request))
@@ -316,17 +372,112 @@ def manage_projects(request):
 @login_required
 def manage_tasks(request):
 
+    if request.method == 'DELETE':
+        task_id = request.REQUEST['id']
+        TaskDefinition.objects.get(id=task_id).delete()
+        return HttpResponse(status=204)
+
+    if request.method == 'PUT':
+        try:
+            request.method = "POST"
+            request._load_post_and_files()
+            request.method = "PUT"
+        except AttributeError:
+            request.META['REQUEST_METHOD'] = 'POST'
+            request._load_post_and_files()
+            request.META['REQUEST_METHOD'] = 'PUT'
+            
+        request.PUT = request.POST
+
+        form = TaskForm(request.PUT)
+        if form.is_valid() and request.REQUEST['id']:
+            # update item
+            task = TaskDefinition.objects.get(id=request.REQUEST['id'])
+            project = Project.objects.get(id=form.cleaned_data['projectId'])
+
+            TaskDefinition(
+                id=request.REQUEST['id'],
+                name=form.cleaned_data['name'],
+                customerId=project.customerId,
+                customerName=project.customerName,
+                clientId=project.clientId,
+                clientName=project.clientName,
+                projectId=form.cleaned_data['projectId'],
+                projectName=project.name,
+                disabled=form.cleaned_data['disabled'],
+                billable=form.cleaned_data['billable'],
+                pto=form.cleaned_data['pto'],
+                commentRequired=form.cleaned_data['commentRequired']
+            ).save()
+            # Always redirect after a POST
+            return HttpResponse(status=204)
+        else:
+            print form.errors
+            return HttpResponse(status=400)
+
+
+    if request.method == 'POST':
+        form = TaskForm(request.POST)
+        if form.is_valid():
+            # create a new item
+            project = Project.objects.get(id=form.cleaned_data['projectId'])
+
+            TaskDefinition(
+                name=form.cleaned_data['name'],
+                customerId=project.customerId,
+                customerName=project.customerName,
+                clientId=project.clientId,
+                clientName=project.clientName,
+                projectId=form.cleaned_data['projectId'],
+                projectName=project.name,
+                disabled=form.cleaned_data['disabled'],
+                billable=form.cleaned_data['billable'],
+                pto=form.cleaned_data['pto'],
+                commentRequired=form.cleaned_data['commentRequired']
+            ).save()
+            # Always redirect after a POST
+            return redirect('/task')
+        else:
+            print form.errors
+
+    else:
+        # This the the first page load, display a blank form
+        form = TaskForm()
+
     params = {
         'projects_map': get_projects_map(),
-        'projects_tasks_map' : get_projects_tasks_map()
+        'projects_tasks_map': get_projects_tasks_map(),
+        'form': form
     }
 
     return render_to_response('task.html', params, context_instance=RequestContext(request))
 
 @login_required
 def manage_employees(request):
+    if request.method == 'POST':
+        form = EmployeeForm(request.POST)
+        if form.is_valid():
+            # create a new item
+            Employee(
+                email=form.cleaned_data['email'],
+                name=form.cleaned_data['name'],
+                active=form.cleaned_data['active'],
+                admin=form.cleaned_data['admin'],
+                startDate=form.cleaned_data['startDate']
+            ).save()
+            # Always redirect after a POST
+            return redirect('/employee')
 
-    return render_to_response('employee.html', {'employees': Employee.objects}, context_instance=RequestContext(request))
+    else:
+        # This the the first page load, display a blank form
+        form = EmployeeForm()
+
+    params = {
+        'employees': Employee.objects,
+        'form': form
+    }
+
+    return render_to_response('employee.html', params, context_instance=RequestContext(request))
 
 @login_required
 def manage_pto(request):
@@ -345,7 +496,13 @@ def manage_pto(request):
             ptos = json.loads(request.body)
             print str(ptos)
             for pto in ptos:
-                PaidTimeOff(id=pto['id'],employee=pto['employee'],hours=pto['hours'],year=year,taskDefinitionId=pto['taskDefinitionId']).save()
+                PaidTimeOff(
+                    id=pto['id'],
+                    employee=pto['employee'],
+                    hours=pto['hours'],
+                    year=year,
+                    taskDefinitionId=pto['taskDefinitionId']
+                ).save()
             return HttpResponse(status=204)
 
 

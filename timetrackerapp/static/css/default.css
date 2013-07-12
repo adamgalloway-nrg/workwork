@@ -140,3 +140,6 @@ table thead, table tfoot { background-color: #d1d0d5; }
 
 thead.sub-header { background-color: #eee; }
 thead.sub-header th { font-weight: normal; font-style: italic; }
+
+.pto-hours small { display: none; }
+.pto-hours.error small { display: block; }

@@ -24,16 +24,19 @@
         <h4>Add a Task</h4>
       </div>
 
-      <form method="POST" class="custom">
+      <form id="add-form" method="POST" class="custom">
         {% csrf_token %}
         <div class="row">
-            <div class="large-8 columns">
+            <div class="large-8 columns {% if form.name.errors %}error{% endif %}">
               <label>Name</label>
-              <input type="text" name="name" placeholder="Enter a name" required />
+              {{ form.name }}
+              {% if form.name.errors %}
+              <small>{{ form.name.errors }}</small>
+              {% endif %}
             </div>
-            <div class="large-8 columns">
+            <div class="large-8 columns {% if form.projectId.errors %}error{% endif %}">
               <label>Project</label>
-              <select name="projectId" class="medium" data-customforms="disabled">
+              <select name="projectId" class="medium" data-customforms="disabled" required>
                 <option value="">Select a project</option>
                 {% for key1,value in projects_map.items %}
                   <optgroup label="{{ key1 }}">
@@ -43,6 +46,9 @@
                   </optgroup>
                 {% endfor %}
               </select>
+              {% if form.projectId.errors %}
+              <small>{{ form.projectId.errors }}</small>
+              {% endif %}
             </div>
         </div>
 
@@ -153,12 +159,12 @@
       <h2>Edit Task</h2>
       <p>
         <label>Name</label>
-        <input class="item-name" type="text" placeholder="Enter a name" required/>
-        <input class="item-id" type="hidden" />
+        <input class="item-name" type="text" name="name" placeholder="Enter a name" required/>
+        <input class="item-id" type="hidden" name="id" />
       </p>
       <p>
         <label>Project</label>
-        <select name="item-projectId" class="medium" data-customforms="disabled">
+        <select name="projectId" class="medium" data-customforms="disabled" required>
           <option value="">Select a project</option>
           {% for key1,value in projects_map.items %}
             <optgroup label="{{ key1 }}">
@@ -173,10 +179,10 @@
           <div class="item-switch">
             <label>Comment Required</label>
             <div class="switch radius">
-              <input id="item-commentRequired" name="item-commentRequired" value="False" type="radio" checked/>
+              <input id="item-commentRequired" name="commentRequired" value="False" type="radio" checked/>
               <label for="item-commentRequired" onclick="">No</label>
 
-              <input id="item-commentRequired1" name="item-commentRequired" value="True" type="radio"/>
+              <input id="item-commentRequired1" name="commentRequired" value="True" type="radio"/>
               <label for="item-commentRequired1" onclick="">Yes</label>
 
               <span></span>
@@ -185,10 +191,10 @@
           <div class="item-switch">
             <label>Billable</label>
             <div class="switch radius">
-              <input id="item-billable" name="item-billable" type="radio" value="False" checked/>
+              <input id="item-billable" name="billable" type="radio" value="False" checked/>
               <label for="item-billable" onclick="">No</label>
 
-              <input id="item-billable1" name="item-billable" value="True" type="radio"/>
+              <input id="item-billable1" name="billable" value="True" type="radio"/>
               <label for="item-billable1" onclick="">Yes</label>
 
               <span></span>
@@ -199,10 +205,10 @@
           <div class="item-switch">
             <label>Paid Time Off</label>
             <div class="switch radius">
-              <input id="item-pto" name="item-pto" value="False" type="radio" checked/>
+              <input id="item-pto" name="pto" value="False" type="radio" checked/>
               <label for="item-active" onclick="">No</label>
 
-              <input id="item-pto1" name="item-pto" value="True" type="radio"/>
+              <input id="item-pto1" name="pto" value="True" type="radio"/>
               <label for="item-pto1" onclick="">Yes</label>
 
               <span></span>
@@ -211,10 +217,10 @@
           <div class="item-switch">
             <label>Disabled</label>
             <div class="switch radius">
-              <input id="item-disabled" name="item-disabled" type="radio" value="False" checked/>
+              <input id="item-disabled" name="disabled" type="radio" value="False" checked/>
               <label for="item-disabled" onclick="">No</label>
 
-              <input id="item-disabled1" name="item-disabled" value="True" type="radio"/>
+              <input id="item-disabled1" name="disabled" value="True" type="radio"/>
               <label for="item-disabled1" onclick="">Yes</label>
 
               <span></span>
@@ -241,47 +247,47 @@
 {% block extrabody %}
     <script>
 
-      $('select[name="projectId"]').select2();
-      $('select[name="item-projectId"]').select2();
+      $('#add-form select[name="projectId"]').select2();
+      $('#edit-dialog select[name="projectId"]').select2();
 
       function clearDialog() {
         $('#edit-dialog input.item-id').val('');
         $('#edit-dialog input.item-name').val('');
-        $('select[name="item-projectId"]').select2('val','');
+        $('#edit-dialog select[name="projectId"]').select2('val','');
       }
 
       function setupDialog(target) {
         $('#edit-dialog input.item-id').val(target.attr('data-id'));
         $('#edit-dialog input.item-name').val(target.attr('data-name'));
-        $('select[name="item-projectId"]').select2('val', target.attr('data-projectid'));
+        $('#edit-dialog select[name="projectId"]').select2('val', target.attr('data-projectid'));
 
         if (target.attr('data-commentRequired') == 'True') {
-          $('#edit-dialog input[name="item-commentRequired"][value="True"]').prop('checked', true);
+          $('#edit-dialog input[name="commentRequired"][value="True"]').prop('checked', true);
         } else {
-          $('#edit-dialog input[name="item-commentRequired"][value="False"]').prop('checked', true);
+          $('#edit-dialog input[name="commentRequired"][value="False"]').prop('checked', true);
         }
         
         if (target.attr('data-billable') == 'True') {
-          $('#edit-dialog input[name="item-billable"][value="True"]').prop('checked', true);
+          $('#edit-dialog input[name="billable"][value="True"]').prop('checked', true);
         } else {
-          $('#edit-dialog input[name="item-billable"][value="False"]').prop('checked', true);
+          $('#edit-dialog input[name="billable"][value="False"]').prop('checked', true);
         }
 
         if (target.attr('data-pto') == 'True') {
-          $('#edit-dialog input[name="item-pto"][value="True"]').prop('checked', true);
+          $('#edit-dialog input[name="pto"][value="True"]').prop('checked', true);
         } else {
-          $('#edit-dialog input[name="item-pto"][value="False"]').prop('checked', true);
+          $('#edit-dialog input[name="pto"][value="False"]').prop('checked', true);
         }
         
         if (target.attr('data-disabled') == 'True') {
-          $('#edit-dialog input[name="item-disabled"][value="True"]').prop('checked', true);
+          $('#edit-dialog input[name="disabled"][value="True"]').prop('checked', true);
         } else {
-          $('#edit-dialog input[name="item-disabled"][value="False"]').prop('checked', true);
+          $('#edit-dialog input[name="disabled"][value="False"]').prop('checked', true);
         }
       }
       
       $('#edit-dialog').foundation('reveal');
-      $('#edit-success-dialog').foundation('reveal');
+      $('#edit-success-dialog').foundation('reveal', { close: function(){ window.location.href = '/task'; } });
 
       $('#edit-dialog').on('close', clearDialog);
 
@@ -296,15 +302,40 @@
         var row = target.parents('tr.item');
         var id = row.attr('data-id');
 
-        if (confirm('Are you sure you want to delete this?')) {
+        if (confirm('Are you sure you want to delete this task?')) {
           //TODO delete it
+          $.ajax({
+            url: '/task?id=' + id,
+            type: 'DELETE',
+            success: function() {
+              alert("Task deleted successfully");
+              window.location.href = '/task';
+            },
+            error: function() {
+              alert("The task could not be deleted");
+            }
+          });
         }
       });
 
       $('#edit-dialog button.save').click(function(event){
-        //TODO save the data
-        // open success dialog
-        $('#edit-success-dialog').foundation('reveal', 'open');
+        // save the data
+        var data = $('input, textarea, select', '#edit-dialog').serialize();
+        var id = $('#edit-dialog input.item-id').val();
+
+        $.ajax({
+            url: '/task?id=' + id,
+            type: 'PUT',
+            data: data,
+            success: function() {
+              // open success dialog
+              $('#edit-success-dialog').foundation('reveal', 'open');
+            },
+            error: function() {
+              alert("The task could not be updated");
+            }
+          });
+        
       });
 
       $('button.cancel').click(function(event){

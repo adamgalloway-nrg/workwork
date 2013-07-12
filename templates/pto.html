@@ -44,8 +44,9 @@
                     {% for item in value %}
                       <tr class="item">
                         <td class="large-14">{{ item.task.name }}</td>
-                        <td class="large-2 text-right">
+                        <td class="large-2 text-right pto-hours">
                           <input type="text" class="text-right" name="hours" data-id="{{ item.pto.id }}" data-taskdefinitionid="{{ item.pto.taskDefinitionId }}" data-employee="{{ item.pto.employee }}" value="{{ item.pto.hours }}" />
+                          <small>Required</small>
                         </td>
                       </tr>
                     {% endfor %}
@@ -66,61 +67,26 @@
 
 {% block extrabody %}
     <script>
-      // move me to util
-      $(document).ajaxSend(function(event, xhr, settings) {
-          function getCookie(name) {
-              var cookieValue = null;
-              if (document.cookie && document.cookie != '') {
-                  var cookies = document.cookie.split(';');
-                  for (var i = 0; i < cookies.length; i++) {
-                      var cookie = jQuery.trim(cookies[i]);
-                      // Does this cookie string begin with the name we want?
-                      if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                          break;
-                      }
-                  }
-              }
-              return cookieValue;
-          }
-          function sameOrigin(url) {
-              // url could be relative or scheme relative or absolute
-              var host = document.location.host; // host + port
-              var protocol = document.location.protocol;
-              var sr_origin = '//' + host;
-              var origin = protocol + sr_origin;
-              // Allow absolute or scheme relative URLs to same origin
-              return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
-                  (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
-                  // or any other URL that isn't scheme relative or absolute i.e relative.
-                  !(/^(\/\/|http:|https:).*/.test(url));
-          }
-          function safeMethod(method) {
-              return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-          }
-
-          if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
-              xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-          }
-      });
-
-      function preventText(event) {
-          if ( !(event.keyCode == 46 || event.keyCode == 8 || event.keyCode == 37 || event.keyCode == 39 || event.keyCode == 9 || event.keyCode == 13 || (event.keyCode >= 48 && event.keyCode <= 57 ) || event.keyCode == 110 || (event.keyCode >= 96 && event.keyCode <= 105 ) || (event.keyCode == 190 && $(this).val().indexOf(".") == -1 ))) {
-            event.preventDefault();
-          }
-      }
 
       $('input[name="hours"]').keydown(preventText);
 
       $('button[name="save"]').click(function(event) {
         var target = $(event.currentTarget);
         var data = [];
+        var errors = false;
 
         $('input[name="hours"]', target.parent()).each(function(){
           var hours = $(this).val();
           var id = $(this).attr('data-id');
           var employee = $(this).attr('data-employee');
           var task = $(this).attr('data-taskdefinitionid');
+
+          if (isNaN(hours) || hours.length == 0) {
+            $(this).parent().addClass('error');
+            errors = true
+          } else {
+            $(this).parent().removeClass('error');
+          }
 
           data.push({
             id: id,
@@ -130,18 +96,20 @@
           });
         });
 
-        $.ajax({
-          url: '/pto/?year={{year}}',
-          type: 'POST',
-          dataType: 'json',
-          data: JSON.stringify(data),
-          success: function() {
-            alert("Changes saved successfully");
-          },
-          error: function() {
-            alert("An error occured");
-          }
-        });
+        if (!errors) {
+          $.ajax({
+            url: '/pto/?year={{year}}',
+            type: 'POST',
+            dataType: 'json',
+            data: JSON.stringify(data),
+            success: function() {
+              alert("Changes saved successfully");
+            },
+            error: function() {
+              alert("An error occured");
+            }
+          });
+        }
 
       });
 

@@ -24,9 +24,9 @@
 			<button class="small radius" type="button" onclick="window.location='/time?employee={{employee|urlencode}}&weekId={{next_weekId}}'">&gt;</button>
       <input id="datepicker" type="text" value="{{sunDate}}" style="visibility:hidden; height:1px; width:1px; margin:-20px 0 0 0;" />
     </div>
-    <div class="large-6 columns">
+    <div class="large-6 columns loader" style="visibility: hidden;">
       <form method="GET" action="/time" class="custom">
-        <select name="employee" onchange="this.form.submit();">
+        <select name="employee" onchange="this.form.submit();" style="height: 31px;">
           {% for emp in employees %}
           <option value="{{ emp.email }}" {% if emp.email == employee %}selected{% endif %}>{{ emp.name }}</option>
           {% endfor %}
@@ -66,149 +66,154 @@
     </script>
     {% endif %}
 
-    <div class="row title-row hide-for-small">
-    	<div class="large-2 columns sun-title">{{ sunTitle }}<br/><b>Sun</b></div>
-  		<div class="large-2 columns mon-title">{{ monTitle }}<br/><b>Mon</b></div>
-  		<div class="large-2 columns tue-title">{{ tueTitle }}<br/><b>Tue</b></div>
-  		<div class="large-2 columns wed-title">{{ wedTitle }}<br/><b>Wed</b></div>
-  		<div class="large-2 columns thu-title">{{ thuTitle }}<br/><b>Thu</b></div>
-  		<div class="large-2 columns fri-title">{{ friTitle }}<br/><b>Fri</b></div>
-  		<div class="large-2 columns sat-title">{{ satTitle }}<br/><b>Sat</b></div>
-  		<div class="large-2 columns total-title"><br/><b>Total</b></div>
-    </div>
+    <section>
+      <div class="preloader" style="z-index: 100;"></div>
+      <div  class="loader" style="visibility: hidden;">
 
-    {{ time_entry_formset.management_form }}
+        <div class="row title-row hide-for-small">
+        	<div class="large-2 columns sun-title">{{ sunTitle }}<br/><b>Sun</b></div>
+      		<div class="large-2 columns mon-title">{{ monTitle }}<br/><b>Mon</b></div>
+      		<div class="large-2 columns tue-title">{{ tueTitle }}<br/><b>Tue</b></div>
+      		<div class="large-2 columns wed-title">{{ wedTitle }}<br/><b>Wed</b></div>
+      		<div class="large-2 columns thu-title">{{ thuTitle }}<br/><b>Thu</b></div>
+      		<div class="large-2 columns fri-title">{{ friTitle }}<br/><b>Fri</b></div>
+      		<div class="large-2 columns sat-title">{{ satTitle }}<br/><b>Sat</b></div>
+      		<div class="large-2 columns total-title"><br/><b>Total</b></div>
+        </div>
 
-    <div class="entry-rows">
-      {% for f in time_entry_formset.forms %}
-      <div class="entry-row">
+        {{ time_entry_formset.management_form }}
 
-        <!-- task name -->
-      	<div class="row task-name-row">
-      		<div class="large-14 columns">
-      			<div class="task-name">{% get_task_name f.taskDefinitionId.value %} {{ f.taskDefinitionId.errors }}</div>
-      			<div class="task-description">{% get_task_desc f.taskDefinitionId.value %} {{ f.rowId.errors }}</div>
-      		</div>
-          <div class="large-2 columns text-right">
-            <span class="delete" onclick="deletEntry(this);">[X]</span>
+        <div class="entry-rows">
+          {% for f in time_entry_formset.forms %}
+          <div class="entry-row">
+
+            <!-- task name -->
+          	<div class="row task-name-row">
+          		<div class="large-14 columns">
+          			<div class="task-name">{% get_task_name f.taskDefinitionId.value %} {{ f.taskDefinitionId.errors }}</div>
+          			<div class="task-description">{% get_task_desc f.taskDefinitionId.value %} {{ f.rowId.errors }}</div>
+          		</div>
+              <div class="large-2 columns text-right">
+                <span class="delete" onclick="deletEntry(this);">[X]</span>
+              </div>
+              {{ f.taskDefinitionId }}
+          		{{ f.rowId }}
+          	</div>
+
+            <!-- task hours -->
+          	<div class="row hours-row">
+          		<div class="large-2 columns sun hours {% if f.sundayHours.errors %}error{% endif %}">
+                <label class="show-for-small">Sun {{ sunTitle }}</label>
+                {{ f.sundayHours }}
+                {% if f.sundayHours.errors %}
+                <small>{{ f.sundayHours.errors }}</small>
+                {% endif %}
+              </div>
+          		<div class="large-2 columns mon hours {% if f.mondayHours.errors %}error{% endif %}">
+                <label class="show-for-small">Mon {{ monTitle }}</label>
+                {{ f.mondayHours }}
+                {% if f.mondayHours.errors %}
+                <small>{{ f.mondayHours.errors }}</small>
+                {% endif %}
+              </div>
+          		<div class="large-2 columns tue hours {% if f.tuesdayHours.errors %}error{% endif %}">
+                <label class="show-for-small">Tue {{ tueTitle }}</label>
+                {{ f.tuesdayHours }}
+                {% if f.tuesdayHours.errors %}
+                <small>{{ f.tuesdayHours.errors }}</small>
+                {% endif %}
+              </div>
+          		<div class="large-2 columns wed hours {% if f.wednesdayHours.errors %}error{% endif %}">
+                <label class="show-for-small">Wed {{ wedTitle }}</label>
+                {{ f.wednesdayHours }}
+                {% if f.wednesdayHours.errors %}
+                <small>{{ f.wednesdayHours.errors }}</small>
+                {% endif %}
+              </div>
+          		<div class="large-2 columns thu hours {% if f.thursdayHours.errors %}error{% endif %}">
+                <label class="show-for-small">Thu {{ thuTitle }}</label>
+                {{ f.thursdayHours }}
+                {% if f.thursdayHours.errors %}
+                <small>{{ f.thursdayHours.errors }}</small>
+                {% endif %}
+              </div>
+          		<div class="large-2 columns fri hours {% if f.fridayHours.errors %}error{% endif %}">
+                <label class="show-for-small">Fri {{ friTitle }}</label>
+                {{ f.fridayHours }}
+                {% if f.fridayHours.errors %}
+                <small>{{ f.fridayHours.errors }}</small>
+                {% endif %}
+              </div>
+          		<div class="large-2 columns sat hours {% if f.saturdayHours.errors %}error{% endif %}">
+                <label class="show-for-small">Sat {{ satTitle }}</label>
+                {{ f.saturdayHours }}
+                {% if f.saturdayHours.errors %}
+                <small>{{ f.saturdayHours.errors }}</small>
+                {% endif %}
+              </div>
+          		<div class="large-2 columns row-total hide-for-small"></div>
+          	</div>
+
+            <!-- task comment -->
+          	<div class="row comment-row">
+          		<div class="large-14 columns comment {% if f.comment.errors %}error{% endif %}">
+      	    		{{ f.comment }}
+                {% if f.comment.errors %}
+                <small>{{ f.comment.errors }}</small>
+                {% endif %}
+      	    	</div>
+          	</div>
           </div>
-          {{ f.taskDefinitionId }}
-      		{{ f.rowId }}
-      	</div>
-
-        <!-- task hours -->
-      	<div class="row hours-row">
-      		<div class="large-2 columns sun hours {% if f.sundayHours.errors %}error{% endif %}">
-            <label class="show-for-small">Sun {{ sunTitle }}</label>
-            {{ f.sundayHours }}
-            {% if f.sundayHours.errors %}
-            <small>{{ f.sundayHours.errors }}</small>
-            {% endif %}
-          </div>
-      		<div class="large-2 columns mon hours {% if f.mondayHours.errors %}error{% endif %}">
-            <label class="show-for-small">Mon {{ monTitle }}</label>
-            {{ f.mondayHours }}
-            {% if f.mondayHours.errors %}
-            <small>{{ f.mondayHours.errors }}</small>
-            {% endif %}
-          </div>
-      		<div class="large-2 columns tue hours {% if f.tuesdayHours.errors %}error{% endif %}">
-            <label class="show-for-small">Tue {{ tueTitle }}</label>
-            {{ f.tuesdayHours }}
-            {% if f.tuesdayHours.errors %}
-            <small>{{ f.tuesdayHours.errors }}</small>
-            {% endif %}
-          </div>
-      		<div class="large-2 columns wed hours {% if f.wednesdayHours.errors %}error{% endif %}">
-            <label class="show-for-small">Wed {{ wedTitle }}</label>
-            {{ f.wednesdayHours }}
-            {% if f.wednesdayHours.errors %}
-            <small>{{ f.wednesdayHours.errors }}</small>
-            {% endif %}
-          </div>
-      		<div class="large-2 columns thu hours {% if f.thursdayHours.errors %}error{% endif %}">
-            <label class="show-for-small">Thu {{ thuTitle }}</label>
-            {{ f.thursdayHours }}
-            {% if f.thursdayHours.errors %}
-            <small>{{ f.thursdayHours.errors }}</small>
-            {% endif %}
-          </div>
-      		<div class="large-2 columns fri hours {% if f.fridayHours.errors %}error{% endif %}">
-            <label class="show-for-small">Fri {{ friTitle }}</label>
-            {{ f.fridayHours }}
-            {% if f.fridayHours.errors %}
-            <small>{{ f.fridayHours.errors }}</small>
-            {% endif %}
-          </div>
-      		<div class="large-2 columns sat hours {% if f.saturdayHours.errors %}error{% endif %}">
-            <label class="show-for-small">Sat {{ satTitle }}</label>
-            {{ f.saturdayHours }}
-            {% if f.saturdayHours.errors %}
-            <small>{{ f.saturdayHours.errors }}</small>
-            {% endif %}
-          </div>
-      		<div class="large-2 columns row-total hide-for-small"></div>
-      	</div>
-
-        <!-- task comment -->
-      	<div class="row comment-row">
-      		<div class="large-14 columns comment {% if f.comment.errors %}error{% endif %}">
-  	    		{{ f.comment }}
-            {% if f.comment.errors %}
-            <small>{{ f.comment.errors }}</small>
-            {% endif %}
-  	    	</div>
-      	</div>
-      </div>
-      {% endfor %}
-    </div>
-
-    <div class="row grand-total-row hide-for-small">
-      <div class="large-2 columns sun-total"><span>0</span></div>
-      <div class="large-2 columns mon-total"><span>0</span></div>
-      <div class="large-2 columns tue-total"><span>0</span></div>
-      <div class="large-2 columns wed-total"><span>0</span></div>
-      <div class="large-2 columns thu-total"><span>0</span></div>
-      <div class="large-2 columns fri-total"><span>0</span></div>
-      <div class="large-2 columns sat-total"><span>0</span></div>
-      <div class="large-2 columns grand-total"></div>
-    </div>
-
-    {% if is_complete == True %}
-
-    <div class="row controls-row manage-time">
-      <div class="large-16 columns text-right">
-        <button  class="small radius" type="submit" name="open" id="open-btn">Open</button>
-      </div>
-    </div>
-    <script>
-      $('input[type="text"]').attr('disabled','disabled');
-    </script>
-
-    {% else %}
-
-    <div class="row controls-row manage-time">
-      <div class="large-11 columns">
-        <select id="task-select">
-          <option value="">Select a task</option>
-          {% for key,value in tasks_map.items %}
-          <optgroup label="{{ key }}">
-            {% for task in value %}
-          <option value="{{ task.id }}">{{ task.name }}</option>
-            {% endfor %}
-          </optgroup>
           {% endfor %}
-        </select>
-      </div>
-      <div class="large-2 columns"><button class="small radius" type="button" id="add-btn">Add</button></div>
-      <div class="large-3 columns text-right">
-        <button  class="small radius" type="submit" name="save" onclick="inputDirty = false;" id="save-btn">Save</button>
-        <button  class="small radius" type="submit" name="complete" onclick="inputDirty = false;" id="complete-btn">Complete</button>
-      </div>
-    </div>
+        </div>
 
-    {% endif %}
+        <div class="row grand-total-row hide-for-small">
+          <div class="large-2 columns sun-total"><span>0</span></div>
+          <div class="large-2 columns mon-total"><span>0</span></div>
+          <div class="large-2 columns tue-total"><span>0</span></div>
+          <div class="large-2 columns wed-total"><span>0</span></div>
+          <div class="large-2 columns thu-total"><span>0</span></div>
+          <div class="large-2 columns fri-total"><span>0</span></div>
+          <div class="large-2 columns sat-total"><span>0</span></div>
+          <div class="large-2 columns grand-total"></div>
+        </div>
 
+        {% if is_complete == True %}
+
+        <div class="row controls-row manage-time">
+          <div class="large-16 columns text-right">
+            <button  class="small radius" type="submit" name="open" id="open-btn">Open</button>
+          </div>
+        </div>
+        <script>
+          $('input[type="text"]').attr('disabled','disabled');
+        </script>
+
+        {% else %}
+
+        <div class="row controls-row manage-time">
+          <div class="large-11 columns">
+            <select id="task-select">
+              <option value="">Select a task</option>
+              {% for key,value in tasks_map.items %}
+              <optgroup label="{{ key }}">
+                {% for task in value %}
+              <option value="{{ task.id }}">{{ task.name }}</option>
+                {% endfor %}
+              </optgroup>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="large-2 columns"><button class="small radius" type="button" id="add-btn">Add</button></div>
+          <div class="large-3 columns text-right">
+            <button  class="small radius" type="submit" name="save" onclick="inputDirty = false;" id="save-btn">Save</button>
+            <button  class="small radius" type="submit" name="complete" onclick="inputDirty = false;" id="complete-btn">Complete</button>
+          </div>
+        </div>
+
+        {% endif %}
+      </div>
+    </section>
 
   </form>
 {% endblock %}
@@ -242,6 +247,16 @@
         //alert(year + month + week);
         window.location.href = '/time?employee={{employee|urlencode}}&weekId=' + year + month + week;
       }
+    });
+
+    $(function(){
+
+      setTimeout(function() {
+
+        $('.preloader').hide();
+        $('.loader').css('visibility', '');
+
+      }, 250);
     });
 
     $("button.calendar").click(function() {
@@ -398,6 +413,7 @@
 
     // setup removing of rows
     function deletEntry(btn) {
+      {% if is_complete != True %}
       var entryRow = $(btn).parents('div.entry-row');
       //var taskName = $('div.task-name', entryRow).text();
       if (confirm('Are you sure you want to delete this row?')) {
@@ -411,6 +427,7 @@
 
         updateTotals();
       }
+      {% endif %}
     }
 
   </script>

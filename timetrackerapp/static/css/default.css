@@ -180,3 +180,5 @@ thead.sub-header th { font-weight: normal; font-style: italic; }
 .pto-hours.error small { display: block; }
 
 .manage-time button { background-color: #e564a5; } 
+
+.preloader { top: 290px; }

@@ -18,48 +18,53 @@
 
 
     <section>
+      <div class="preloader" style="z-index: 100;"></div>
+
       <div class="row">
-          <h4>Paid Time Off</h4>
+          <h4>Paid Time Off: {{year}}</h4>
           <button class="small radius" type="button" onclick="window.location='/pto/'">Current</button>
           <button class="small radius" type="button" onclick="window.location='/pto/?year={{prev_year}}'">&lt;</button>
           <button class="small radius" type="button" onclick="window.location='/pto/?year={{next_year}}'">&gt;</button>
       </div>
 
-      <div class="row section-container vertical-tabs" data-section="vertical-tabs">
-        {% for key,value in pto_map.items %}
-        <section>
-          <p class="title" data-section-title><a href="#">{{key.name}}</a></p>
-          <div class="content" data-section-content>
-            <div class="row">
-              <div class="large-16 columns">
-                  {% csrf_token %}
-                  <table class="large-16">
-                    <thead>
-                      <tr>
-                        <th class="large-14">Name</th>
-                        <th class="large-2 text-right">Hours</th>
-                      </tr>
-                    </thead>
+      <div class="loader" style="visibility: hidden;">
+        <div class="row section-container vertical-tabs" data-section="vertical-tabs">
+          {% for key,value in pto_map.items %}
+          <section>
+            <p class="title" data-section-title><a href="#">{{key.name}}</a></p>
+            <div class="content" data-section-content>
+              <div class="row">
+                <div class="large-16 columns">
+                    <h6>{{ key.name }}</h6>
+                    {% csrf_token %}
+                    <table class="large-16">
+                      <thead>
+                        <tr>
+                          <th class="large-14">Name</th>
+                          <th class="large-2 text-right">Hours</th>
+                        </tr>
+                      </thead>
 
-                    <tbody>
-                    {% for item in value %}
-                      <tr class="item">
-                        <td class="large-14">{{ item.task.name }}</td>
-                        <td class="large-2 text-right pto-hours">
-                          <input type="text" class="text-right" name="hours" data-id="{{ item.pto.id }}" data-taskdefinitionid="{{ item.pto.taskDefinitionId }}" data-employee="{{ item.pto.employee }}" value="{{ item.pto.hours }}" />
-                          <small>Required</small>
-                        </td>
-                      </tr>
-                    {% endfor %}
-                    </tbody>
-                  </table>
-                  <button type="button" name="save" class="radius small right">Save</button>
+                      <tbody>
+                      {% for item in value %}
+                        <tr class="item">
+                          <td class="large-14">{{ item.task.name }}</td>
+                          <td class="large-2 text-right pto-hours">
+                            <input type="text" class="text-right" name="hours" data-id="{{ item.pto.id }}" data-taskdefinitionid="{{ item.pto.taskDefinitionId }}" data-employee="{{ item.pto.employee }}" value="{{ item.pto.hours }}" />
+                            <small>Required</small>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                      </tbody>
+                    </table>
+                    <button type="button" name="save" class="radius small right">Save</button>
 
+                </div>
               </div>
             </div>
-          </div>
-        </section>
-        {% endfor %}
+          </section>
+          {% endfor %}
+        </div>
       </div>
 
     </section>
@@ -68,6 +73,15 @@
 
 {% block extrabody %}
     <script>
+      $(function(){
+
+        setTimeout(function() {
+
+          $('.preloader').hide();
+          $('.loader').css('visibility', '');
+
+        }, 500);
+      });
 
       $('input[name="hours"]').keydown(preventText);
 

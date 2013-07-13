@@ -15,10 +15,11 @@ from django.contrib.auth.decorators import login_required
 from django.forms.formsets import formset_factory
 import collections
 from django.forms.util import ErrorList
+import urllib
+from django.core.cache import get_cache
 
 
-
-
+cache = get_cache('default')
 
 def get_weekId(today):
     calendar.setfirstweekday(calendar.SUNDAY)
@@ -130,48 +131,74 @@ def get_task_description(task):
     else:
         return task.customerName + ' - ' + task.clientName + ' - ' + task.projectName
 
-def get_tasks_map():
-    tasks_map = {}
-    for task in TaskDefinition.objects.order_by('name'):
-        task_group = get_task_description(task)
-        if task_group not in tasks_map:
-            tasks_map[task_group] = []
-        tasks_map[task_group].append(task)
 
-    # sort keys alphabetically
-    return collections.OrderedDict(sorted(tasks_map.items()))
+
+# cached methods
+def get_tasks_map():
+    tasks_map = cache.get('tasks_map')
+    if tasks_map is not None:
+        return tasks_map
+    else:
+        tasks_map = {}
+        for task in TaskDefinition.objects.order_by('name'):
+            task_group = get_task_description(task)
+            if task_group not in tasks_map:
+                tasks_map[task_group] = []
+            tasks_map[task_group].append(task)
+
+        # sort keys alphabetically
+        results = collections.OrderedDict(sorted(tasks_map.items()))
+        cache.set('tasks_map', results, 21600)
+        return results
 
 def get_projects_map():
-    projects_map = {}
-    for project in Project.objects.order_by('name'):
-        project_group = project.customerName
-        if project.customerName.strip() != project.clientName.strip():
-            project_group += ' - ' + project.clientName
+    projects_map = cache.get('projects_map')
+    if projects_map is not None:
+        return projects_map
+    else:
+        projects_map = {}
+        for project in Project.objects.order_by('name'):
+            project_group = project.customerName
+            if project.customerName.strip() != project.clientName.strip():
+                project_group += ' - ' + project.clientName
 
-        if project_group not in projects_map:
-            projects_map[project_group] = []
-        projects_map[project_group].append(project)
+            if project_group not in projects_map:
+                projects_map[project_group] = []
+            projects_map[project_group].append(project)
 
-    # sort keys alphabetically
-    return collections.OrderedDict(sorted(projects_map.items()))
+        # sort keys alphabetically
+        results = collections.OrderedDict(sorted(projects_map.items()))
+        cache.set('projects_map', results, 21600)
+        return results
 
 def get_projects_tasks_map():
-    projects_map = {}
-    for task in TaskDefinition.objects.order_by('name'):
-        project_group = task.customerName
-        if task.customerName.strip() != task.clientName.strip():
-            project_group += ' - ' + task.clientName
+    projects_tasks_map = cache.get('projects_tasks_map')
+    if projects_tasks_map is not None:
+        return projects_tasks_map
+    else:
+        projects_map = {}
+        for task in TaskDefinition.objects.order_by('name'):
+            project_group = task.customerName
+            if task.customerName.strip() != task.clientName.strip():
+                project_group += ' - ' + task.clientName
 
-        if project_group not in projects_map:
-            projects_map[project_group] = {}
+            if project_group not in projects_map:
+                projects_map[project_group] = {}
 
-        if task.projectName not in projects_map[project_group]:
-            projects_map[project_group][task.projectName] = []
+            if task.projectName not in projects_map[project_group]:
+                projects_map[project_group][task.projectName] = []
 
-        projects_map[project_group][task.projectName].append(task)
+            projects_map[project_group][task.projectName].append(task)
 
-    # sort keys alphabetically
-    return collections.OrderedDict(sorted(projects_map.items()))
+        # sort keys alphabetically
+        results = collections.OrderedDict(sorted(projects_map.items()))
+        cache.set('projects_tasks_map', results, 21600)
+        return results
+
+def clear_cached():
+    cache.delete_many(['tasks_map', 'projects_map', 'projects_tasks_map'])
+
+
 
 def get_pto_map(year):
     pto_map = {}
@@ -392,8 +419,8 @@ def index(request):
 
             for comment in comments:
                 row_id = str(comment.rowId)
-
-                time_entry_rows[row_id]['comment'] = comment.text
+                if row_id in time_entry_rows:
+                    time_entry_rows[row_id]['comment'] = comment.text
 
 
             form_data = sorted(time_entry_rows.values(), key=lambda row: row['rowId'])
@@ -411,6 +438,7 @@ def index(request):
             'next_weekId': get_next_weekId(weekId),
             'tasks_map': tasks_map,
             'is_complete': is_complete,
+            'sunDate': sunDate.strftime("%m/%d/%Y"),
             'sunTitle': sunDate.strftime("%-m/%-d"),
             'monTitle': monDate.strftime("%-m/%-d"),
             'tueTitle': tueDate.strftime("%-m/%-d"),
@@ -421,6 +449,244 @@ def index(request):
             'rangeTitle': get_range_title(sunDate, satDate)
         }, context_instance=RequestContext(request))
 
+
+
+@login_required
+def manage_time(request):
+    employee = get_employee(request)
+    if employee.admin != True:
+        return redirect('/')
+
+    current_employee = employee
+
+    if 'employee' in request.REQUEST:
+        employees = Employee.objects(email=request.REQUEST['employee'])
+        if len(employees) > 0:
+            employee = employees.first()
+
+
+    if 'weekId' not in request.REQUEST or not request.REQUEST['weekId']:
+        return redirect('/time?%s' %  urllib.urlencode({ 'weekId': get_current_weekId(), 'employee': employee.email}) )
+    else:
+        weekId = request.REQUEST['weekId']
+
+        if math.isnan(int(weekId)):
+            return redirect('/time?%s' % urllib.urlencode({ 'weekId': get_current_weekId(), 'employee': employee.email}) )
+
+        saved_message = None
+
+        sunDate, monDate, tueDate, wedDate, thuDate, friDate, satDate = get_week_dates(weekId)
+
+
+        TimeEntryFormSet = formset_factory(TimeEntryForm,formset=BaseTimeEntryFormSet,extra=0)
+        if request.method == 'POST':
+            if 'open' in request.POST:
+                week_entry, created = WeekEntry.objects.get_or_create(employee=employee.email,weekId=weekId,defaults={'complete':False})
+                week_entry.complete = False
+                week_entry.save()
+
+                # redirect after post
+                return redirect('/time?%s' % urllib.urlencode({ 'weekId': weekId, 'employee': employee.email, 'saved': 'open'}) )
+
+
+            time_entry_formset = TimeEntryFormSet(request.POST, request.FILES)
+            if time_entry_formset.is_valid():
+                # do something with the cleaned_data on the formsets.
+
+                new_time_entries = []
+                new_comments = []
+                i = 0
+                for form in time_entry_formset:
+
+                    save_row = False
+
+                    if form.cleaned_data['sundayHours'] > decimal.Decimal('0'):
+                        save_row = True
+                        new_time_entries.append(
+                            TimeEntry(
+                                date=sunDate,
+                                taskDefinitionId=form.cleaned_data['taskDefinitionId'],
+                                durationInHours=form.cleaned_data['sundayHours'],
+                                rowId=i,
+                                weekId=weekId,
+                                employee=employee.email
+                            )
+                        )
+                    if form.cleaned_data['mondayHours'] > decimal.Decimal('0'):
+                        save_row = True
+                        new_time_entries.append(
+                            TimeEntry(
+                                date=monDate,
+                                taskDefinitionId=form.cleaned_data['taskDefinitionId'],
+                                durationInHours=form.cleaned_data['mondayHours'],
+                                rowId=i,
+                                weekId=weekId,
+                                employee=employee.email
+                            )
+                        )
+                    if form.cleaned_data['tuesdayHours'] > decimal.Decimal('0'):
+                        save_row = True
+                        new_time_entries.append(
+                            TimeEntry(
+                                date=tueDate,
+                                taskDefinitionId=form.cleaned_data['taskDefinitionId'],
+                                durationInHours=form.cleaned_data['tuesdayHours'],
+                                rowId=i,
+                                weekId=weekId,
+                                employee=employee.email
+                            )
+                        )
+                    if form.cleaned_data['wednesdayHours'] > decimal.Decimal('0'):
+                        save_row = True
+                        new_time_entries.append(
+                            TimeEntry(
+                                date=wedDate,
+                                taskDefinitionId=form.cleaned_data['taskDefinitionId'],
+                                durationInHours=form.cleaned_data['wednesdayHours'],
+                                rowId=i,
+                                weekId=weekId,
+                                employee=employee.email
+                            )
+                        )
+                    if form.cleaned_data['thursdayHours'] > decimal.Decimal('0'):
+                        save_row = True
+                        new_time_entries.append(
+                            TimeEntry(
+                                date=thuDate,
+                                taskDefinitionId=form.cleaned_data['taskDefinitionId'],
+                                durationInHours=form.cleaned_data['thursdayHours'],
+                                rowId=i,
+                                weekId=weekId,
+                                employee=employee.email
+                            )
+                        )
+                    if form.cleaned_data['fridayHours'] > decimal.Decimal('0'):
+                        save_row = True
+                        new_time_entries.append(
+                            TimeEntry(
+                                date=friDate,
+                                taskDefinitionId=form.cleaned_data['taskDefinitionId'],
+                                durationInHours=form.cleaned_data['fridayHours'],
+                                rowId=i,
+                                weekId=weekId,
+                                employee=employee.email
+                            )
+                        )
+                    if form.cleaned_data['saturdayHours'] > decimal.Decimal('0'):
+                        save_row = True
+                        new_time_entries.append(
+                            TimeEntry(
+                                date=satDate,
+                                taskDefinitionId=form.cleaned_data['taskDefinitionId'],
+                                durationInHours=form.cleaned_data['saturdayHours'],
+                                rowId=i,
+                                weekId=weekId,
+                                employee=employee.email
+                            )
+                        )
+
+                    if save_row:
+                        if form.cleaned_data['comment']:
+                            new_comments.append(
+                                Comment(employee=employee.email, weekId=weekId, rowId=i, text=form.cleaned_data['comment'])
+                            )
+
+                        i += 1
+
+                print new_time_entries
+
+                # remove time entries for this employee and weekId
+                TimeEntry.objects(employee=employee.email, weekId=weekId).delete()
+                # save new_time_entries
+                if len(new_time_entries) > 0:
+                    TimeEntry.objects.insert(new_time_entries)
+
+                # remove comments for this employee and weekId
+                Comment.objects(employee=employee.email, weekId=weekId).delete()
+                # save new_comments
+                if len(new_comments) > 0:
+                    Comment.objects.insert(new_comments)
+
+                # check if we are completing the week
+                if 'complete' in request.POST:
+                    week_entry, created = WeekEntry.objects.get_or_create(employee=employee.email,weekId=weekId,defaults={'complete':True})
+                    week_entry.complete = True
+                    week_entry.save()
+
+                # redirect after post
+                return redirect('/time?%s' % urllib.urlencode({ 'weekId': weekId, 'employee': employee.email, 'saved': 'saved'}) )
+        else:
+            time_entries = TimeEntry.objects(employee=employee.email, weekId=weekId)
+            comments = Comment.objects(employee=employee.email, weekId=weekId)
+
+            tasks_map = get_tasks_map()
+
+            time_entry_rows = {}
+            for time_entry in time_entries:
+                task_id = str(time_entry.taskDefinitionId)
+                row_id = str(time_entry.rowId)
+
+                if row_id not in time_entry_rows:
+                    time_entry_rows[row_id] = {
+                        'taskDefinitionId': task_id,
+                        'rowId': row_id,
+                        'sundayHours': decimal.Decimal('0'),
+                        'mondayHours': decimal.Decimal('0'),
+                        'tuesdayHours': decimal.Decimal('0'),
+                        'wednesdayHours': decimal.Decimal('0'),
+                        'thursdayHours': decimal.Decimal('0'),
+                        'fridayHours': decimal.Decimal('0'),
+                        'saturdayHours': decimal.Decimal('0')
+                    }
+
+                if time_entry.date.weekday() == 0:
+                    time_entry_rows[row_id]['mondayHours'] += time_entry.durationInHours
+                elif time_entry.date.weekday() == 1:
+                    time_entry_rows[row_id]['tuesdayHours'] += time_entry.durationInHours
+                elif time_entry.date.weekday() == 2:
+                    time_entry_rows[row_id]['wednesdayHours'] += time_entry.durationInHours
+                elif time_entry.date.weekday() == 3:
+                    time_entry_rows[row_id]['thursdayHours'] += time_entry.durationInHours
+                elif time_entry.date.weekday() == 4:
+                    time_entry_rows[row_id]['fridayHours'] += time_entry.durationInHours
+                elif time_entry.date.weekday() == 5:
+                    time_entry_rows[row_id]['saturdayHours'] += time_entry.durationInHours
+                elif time_entry.date.weekday() == 6:
+                    time_entry_rows[row_id]['sundayHours'] += time_entry.durationInHours
+
+            for comment in comments:
+                row_id = str(comment.rowId)
+                if row_id in time_entry_rows:
+                    time_entry_rows[row_id]['comment'] = comment.text
+
+
+            form_data = sorted(time_entry_rows.values(), key=lambda row: row['rowId'])
+
+            time_entry_formset = TimeEntryFormSet(initial=form_data)
+
+
+        is_complete = len(WeekEntry.objects(employee=employee.email,weekId=weekId,complete=True))
+
+
+        return render_to_response('time.html', {
+            'time_entry_formset': time_entry_formset,
+            'employee': employee.email,
+            'employees': Employee.objects,
+            'weekId': weekId,
+            'prev_weekId': get_prev_weekId(weekId),
+            'next_weekId': get_next_weekId(weekId),
+            'tasks_map': tasks_map,
+            'is_complete': is_complete,
+            'sunDate': sunDate.strftime("%m/%d/%Y"),
+            'sunTitle': sunDate.strftime("%-m/%-d"),
+            'monTitle': monDate.strftime("%-m/%-d"),
+            'tueTitle': tueDate.strftime("%-m/%-d"),
+            'wedTitle': wedDate.strftime("%-m/%-d"),
+            'thuTitle': thuDate.strftime("%-m/%-d"),
+            'friTitle': friDate.strftime("%-m/%-d"),
+            'satTitle': satDate.strftime("%-m/%-d"),
+            'rangeTitle': get_range_title(sunDate, satDate)
+        }, context_instance=RequestContext(request))
 
 
 @login_required
@@ -435,6 +701,7 @@ def manage_customers(request):
             return HttpResponse(status=400)
         else:
             Customer.objects.get(id=customer_id).delete()
+            clear_cached()
             return HttpResponse(status=204)
 
     if request.method == 'PUT':
@@ -463,6 +730,7 @@ def manage_customers(request):
             TaskDefinition.objects(customerId=request.REQUEST['id']).update(set__customerName=form.cleaned_data['name'])
 
             # Always redirect after a POST
+            clear_cached()
             return HttpResponse(status=204)
         else:
             print form.errors
@@ -478,6 +746,7 @@ def manage_customers(request):
                 invoicingId=form.cleaned_data['invoicingId']
             ).save()
             # Always redirect after a POST
+            clear_cached()
             return redirect('/customer')
 
     else:
@@ -503,6 +772,7 @@ def manage_clients(request):
             return HttpResponse(status=400)
         else:
             Client.objects.get(id=client_id).delete()
+            clear_cached()
             return HttpResponse(status=204)
 
     if request.method == 'PUT':
@@ -528,6 +798,7 @@ def manage_clients(request):
             TaskDefinition.objects(clientId=request.REQUEST['id']).update(set__clientName=form.cleaned_data['name'])
 
             # Always redirect after a POST
+            clear_cached()
             return HttpResponse(status=204)
         else:
             print form.errors
@@ -540,6 +811,7 @@ def manage_clients(request):
             # create a new item
             Client(name=form.cleaned_data['name']).save()
             # Always redirect after a POST
+            clear_cached()
             return redirect('/client')
 
     else:
@@ -565,6 +837,7 @@ def manage_projects(request):
             return HttpResponse(status=400)
         else:
             Project.objects.get(id=project_id).delete()
+            clear_cached()
             return HttpResponse(status=204)
 
     if request.method == 'PUT':
@@ -605,6 +878,7 @@ def manage_projects(request):
 
 
             # Always redirect after a POST
+            clear_cached()
             return HttpResponse(status=204)
         else:
             print form.errors
@@ -626,6 +900,7 @@ def manage_projects(request):
                 clientName=client_name
             ).save()
             # Always redirect after a POST
+            clear_cached()
             return redirect('/project')
         else:
             print form.errors
@@ -655,6 +930,7 @@ def manage_tasks(request):
             return HttpResponse(status=400)
         else:
             TaskDefinition.objects.get(id=task_id).delete()
+            clear_cached()
             return HttpResponse(status=204)
 
     if request.method == 'PUT':
@@ -688,6 +964,7 @@ def manage_tasks(request):
                 set__commentRequired=form.cleaned_data['commentRequired']
             )
             # Always redirect after a POST
+            clear_cached()
             return HttpResponse(status=204)
         else:
             print form.errors
@@ -714,6 +991,7 @@ def manage_tasks(request):
                 commentRequired=form.cleaned_data['commentRequired']
             ).save()
             # Always redirect after a POST
+            clear_cached()
             return redirect('/task')
         else:
             print form.errors

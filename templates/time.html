@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Enter Time{% endblock %}
+{% block title %}Manage Time{% endblock %}
 {% block content %}
   {% if request.session.employee.admin == True %}
     <nav class="row">
@@ -11,20 +11,30 @@
         <dd><a href="/project">Projects</a></dd>
         <dd><a href="/task">Tasks</a></dd>
         <dd><a href="/pto">PTO</a></dd>
-        <dd><a href="/time">Time</a></dd>
+        <dd class="active"><a href="/time">Time</a></dd>
       </dl>
     </nav>
   {% endif %}
 
-	<div class="row">
-		<div class="large-8 columns">
+	<div class="row manage-time">
+		<div class="large-5 columns">
       <button class="small radius calendar" type="button">&nbsp;</button>
-      <button class="small radius" type="button" onclick="window.location='/'">Today</button>
-			<button class="small radius" type="button" onclick="window.location='/?weekId={{prev_weekId}}'">&lt;</button>
-			<button class="small radius" type="button" onclick="window.location='/?weekId={{next_weekId}}'">&gt;</button>
+      <button class="small radius" type="button" onclick="window.location='/time?employee={{employee|urlencode}}'">Today</button>
+			<button class="small radius" type="button" onclick="window.location='/time?employee={{employee|urlencode}}&weekId={{prev_weekId}}'">&lt;</button>
+			<button class="small radius" type="button" onclick="window.location='/time?employee={{employee|urlencode}}&weekId={{next_weekId}}'">&gt;</button>
       <input id="datepicker" type="text" value="{{sunDate}}" style="visibility:hidden; height:1px; width:1px; margin:-20px 0 0 0;" />
     </div>
-    <div class="large-8 columns text-right">
+    <div class="large-6 columns">
+      <form method="GET" action="/time" class="custom">
+        <select name="employee" onchange="this.form.submit();">
+          {% for emp in employees %}
+          <option value="{{ emp.email }}" {% if emp.email == employee %}selected{% endif %}>{{ emp.name }}</option>
+          {% endfor %}
+        </select>
+        <input type="hidden" name="weekId" value="{{weekId}}"/>
+      </form>
+    </div>
+    <div class="large-5 columns text-right">
 			<h3>{{ rangeTitle }}</h3>
 		</div>
     <hr/>
@@ -34,7 +44,7 @@
   {% load timetracker_extras %}
 
 
-  <form method="POST" action="/?weekId={{ weekId }}">
+  <form method="POST" action="/time/?employee={{ employee|urlencode }}&weekId={{ weekId }}">
     {% csrf_token %}
 
     {% if time_entry_formset.non_form_errors %}
@@ -166,7 +176,7 @@
 
     {% if is_complete == True %}
 
-    <div class="row controls-row">
+    <div class="row controls-row manage-time">
       <div class="large-16 columns text-right">
         <button  class="small radius" type="submit" name="open" id="open-btn">Open</button>
       </div>
@@ -177,7 +187,7 @@
 
     {% else %}
 
-    <div class="row controls-row">
+    <div class="row controls-row manage-time">
       <div class="large-11 columns">
         <select id="task-select">
           <option value="">Select a task</option>
@@ -230,7 +240,7 @@
         var week = '' + date.getWeekOfMonth(true);
 
         //alert(year + month + week);
-        window.location.href = '/?weekId=' + year + month + week;
+        window.location.href = '/time?employee={{employee|urlencode}}&weekId=' + year + month + week;
       }
     });
 

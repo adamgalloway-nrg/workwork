@@ -38,6 +38,7 @@ urlpatterns = patterns('',
     url(r'^task/', 'timetracker.timetrackerapp.views.manage_tasks'),
     url(r'^employee/', 'timetracker.timetrackerapp.views.manage_employees'),
     url(r'^pto/', 'timetracker.timetrackerapp.views.manage_pto'),
+    url(r'^time/', 'timetracker.timetrackerapp.views.manage_time'),
 
     #url(r'^oauth2callback', 'timetracker.timetrackerapp.views.auth_return'),
     # Uncomment the next line to enable the admin:

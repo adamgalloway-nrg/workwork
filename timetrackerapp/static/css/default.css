@@ -52,6 +52,8 @@ div.total-title { height: inherit; }
 
 div.title-row { padding: 5px 0 5px 0; margin-bottom: 10px; }
 
+div.title-row b { color: #0F729A; }
+
 div.total-title,
 div.row-total,
 div.sun-total,
@@ -130,6 +132,25 @@ div.entry-row:nth-of-type(odd) div.comment-row { border-bottom: 1px dotted #dddd
 }
 
 
+.ui-datepicker-calendar { border: solid 1px #fff; }
+
+.ui-datepicker-calendar thead { background-color: #fff; }
+.ui-datepicker-calendar tr:nth-of-type(even) { background: #fff; }
+
+.ui-datepicker-calendar .ui-state-default {
+	border: 1px solid #fff;
+	background-color: #fff;
+	background-image: none;
+}
+
+.ui-datepicker-current-week { border: 1px solid #138ec0; }
+
+.ui-datepicker-current-week .ui-state-default {
+	border: 1px solid #fff;
+	background-color: #fff;
+	background-image: none;
+	color: #212121;
+}
 
 
 div.task-description { font-size: 0.75em; padding: 5px 0; color: #138ec0; }
@@ -158,3 +179,4 @@ thead.sub-header th { font-weight: normal; font-style: italic; }
 .pto-hours small { display: none; }
 .pto-hours.error small { display: block; }
 
+.manage-time button { background-color: #e564a5; } 

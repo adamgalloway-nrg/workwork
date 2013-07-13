@@ -1,7 +1,50 @@
 from django import forms
+from django.forms.formsets import BaseFormSet
 from django.forms.formsets import formset_factory
 from bson import ObjectId
 from models import Client, Comment, Customer, Employee, PaidTimeOff, Project, TaskDefinition, TimeEntry, WeekEntry
+import decimal
+
+class BaseTimeEntryFormSet(BaseFormSet):
+    def clean(self):
+        if any(self.errors):
+            # Don't bother validating the formset unless each form is valid on its own
+            return
+
+        sunTotal = decimal.Decimal('0')
+        monTotal = decimal.Decimal('0')
+        tueTotal = decimal.Decimal('0')
+        wedTotal = decimal.Decimal('0')
+        thuTotal = decimal.Decimal('0')
+        friTotal = decimal.Decimal('0')
+        satTotal = decimal.Decimal('0')
+
+        for form in self.forms:
+            # add up hours for each day
+            sunTotal += form.cleaned_data['sundayHours']
+            monTotal += form.cleaned_data['mondayHours']
+            tueTotal += form.cleaned_data['tuesdayHours']
+            wedTotal += form.cleaned_data['wednesdayHours']
+            thuTotal += form.cleaned_data['thursdayHours']
+            friTotal += form.cleaned_data['fridayHours']
+            satTotal += form.cleaned_data['saturdayHours']
+
+        if sunTotal > decimal.Decimal('24'):
+            raise forms.ValidationError("Too many hours for Sunday")
+        if monTotal > decimal.Decimal('24'):
+            raise forms.ValidationError("Too many hours for Monday")
+        if tueTotal > decimal.Decimal('24'):
+            raise forms.ValidationError("Too many hours for Tuesday")
+        if wedTotal > decimal.Decimal('24'):
+            raise forms.ValidationError("Too many hours for Wednesday")
+        if thuTotal > decimal.Decimal('24'):
+            raise forms.ValidationError("Too many hours for Thursday")
+        if friTotal > decimal.Decimal('24'):
+            raise forms.ValidationError("Too many hours for Friday")
+        if satTotal > decimal.Decimal('24'):
+            raise forms.ValidationError("Too many hours for Saturday")
+
+
 
 class TimeEntryForm(forms.Form):
     taskDefinitionId = forms.CharField(widget=forms.HiddenInput())
@@ -32,11 +75,14 @@ class TimeEntryForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(TimeEntryForm, self).clean()
-        print cleaned_data
+
         task_id_string = cleaned_data['taskDefinitionId']
+
         task = TaskDefinition.objects.get(id=ObjectId(task_id_string))
         if task.commentRequired:
             self.validate_required_field(cleaned_data, 'comment')
+
+        return cleaned_data
 
 
 class EmployeeForm(forms.Form):

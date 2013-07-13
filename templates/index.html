@@ -35,6 +35,25 @@
   <form method="POST" action="/?weekId={{ weekId }}">
     {% csrf_token %}
 
+    {% if time_entry_formset.non_form_errors %}
+    <div class="row error">
+      <small>{{ time_entry_formset.non_form_errors }}</small>
+    </div>
+    {% endif %}
+
+    {% if request.GET.saved == 'saved' %}
+    <div id="saved-message" class="row message">
+      <small>Saved!</small>
+    </div>
+    <script>
+      $(function(){
+        setTimeout(function(){
+          $('#saved-message').fadeOut();
+        }, 8000);
+      });
+    </script>
+    {% endif %}
+
     <div class="row title-row hide-for-small">
     	<div class="large-2 columns sun-title">{{ sunTitle }}<br/><b>Sun</b></div>
   		<div class="large-2 columns mon-title">{{ monTitle }}<br/><b>Mon</b></div>
@@ -143,6 +162,19 @@
       <div class="large-2 columns grand-total"></div>
     </div>
 
+    {% if is_complete == True %}
+
+    <div class="row controls-row">
+      <div class="large-16 columns text-right">
+        <button  class="small radius" type="submit" name="open" id="open-btn">Open</button>
+      </div>
+    </div>
+    <script>
+      $('input[type="text"]').attr('disabled','disabled');
+    </script>
+
+    {% else %}
+
     <div class="row controls-row">
       <div class="large-11 columns">
         <select id="task-select">
@@ -162,6 +194,10 @@
         <button  class="small radius" type="submit" name="complete" onclick="inputDirty = false;" id="complete-btn">Complete</button>
       </div>
     </div>
+
+    {% endif %}
+
+
   </form>
 {% endblock %}
 

@@ -118,6 +118,20 @@ div.entry-row:nth-of-type(odd) div.comment-row { border-bottom: 1px dotted #dddd
 .error small ul { margin-bottom: 0; }
 .error small li { list-style-type: none; display: inline-block; }
 
+.message small, small.message {
+	display: block;
+	padding: 0.375em 0.25em;
+	margin-top: -1.3125em;
+	margin-bottom: 1em;
+	font-size: 0.75em;
+	font-weight: bold;
+	background: #98cc42;
+	color: white;
+}
+
+
+
+
 div.task-description { font-size: 0.75em; padding: 5px 0; color: #138ec0; }
 
 button, .button { background-color: #138ec0; border-color: #0F729A; }
@@ -143,3 +157,4 @@ thead.sub-header th { font-weight: normal; font-style: italic; }
 
 .pto-hours small { display: none; }
 .pto-hours.error small { display: block; }
+

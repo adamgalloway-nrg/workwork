@@ -80,7 +80,7 @@ class TimeEntry(Document):
 class WeekEntry(Document):
 	meta = {'collection': 'week_entry'}
 	#employee,complete,id,weekId
-	employee = EmailField(max_length=120, required=True)
+	employee = EmailField(max_length=120, required=True, unique_with='weekId')
 	weekId = LongField(required=True)
 	complete = BooleanField(required=True, default=False)
 

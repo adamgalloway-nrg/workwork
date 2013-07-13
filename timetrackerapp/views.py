@@ -4,7 +4,7 @@ from django.views.generic import ListView
 from django.http import HttpResponse
 from models import Post
 from models import Client, Comment, Customer, Employee, PaidTimeOff, Project, TaskDefinition, TimeEntry, WeekEntry
-from forms import TimeEntryForm, EmployeeForm, ClientForm, CustomerForm, ProjectForm, TaskForm
+from forms import BaseTimeEntryFormSet, TimeEntryForm, EmployeeForm, ClientForm, CustomerForm, ProjectForm, TaskForm
 import datetime
 import calendar
 import math
@@ -202,77 +202,198 @@ def index(request):
     employee = get_employee(request)
 
     if 'weekId' not in request.REQUEST or not request.REQUEST['weekId']:
-        return redirect('/?weekId=' + get_current_weekId())
+        return redirect('/?weekId=%s' % get_current_weekId())
     else:
         weekId = request.REQUEST['weekId']
 
         if math.isnan(int(weekId)):
-            return redirect('/?weekId=' + get_current_weekId())
+            return redirect('/?weekId=%s' % get_current_weekId())
+
+        saved_message = None
 
         sunDate, monDate, tueDate, wedDate, thuDate, friDate, satDate = get_week_dates(weekId)
 
 
-        time_entries = TimeEntry.objects(employee=employee.email, weekId=weekId)
-        comments = Comment.objects(employee=employee.email, weekId=weekId)
-
-        tasks_map = get_tasks_map()
-
-        time_entry_row = {}
-        for time_entry in time_entries:
-            task_id = str(time_entry.taskDefinitionId)
-            row_id = str(time_entry.rowId)
-
-            if row_id not in time_entry_row:
-                time_entry_row[row_id] = {
-                    'taskDefinitionId': task_id,
-                    'rowId': row_id,
-                    'sundayHours': decimal.Decimal('0'),
-                    'mondayHours': decimal.Decimal('0'),
-                    'tuesdayHours': decimal.Decimal('0'),
-                    'wednesdayHours': decimal.Decimal('0'),
-                    'thursdayHours': decimal.Decimal('0'),
-                    'fridayHours': decimal.Decimal('0'),
-                    'saturdayHours': decimal.Decimal('0')
-                }
-
-            if time_entry.date.weekday() == 0:
-                time_entry_row[row_id]['mondayHours'] += time_entry.durationInHours
-            elif time_entry.date.weekday() == 1:
-                time_entry_row[row_id]['tuesdayHours'] += time_entry.durationInHours
-            elif time_entry.date.weekday() == 2:
-                time_entry_row[row_id]['wednesdayHours'] += time_entry.durationInHours
-            elif time_entry.date.weekday() == 3:
-                time_entry_row[row_id]['thursdayHours'] += time_entry.durationInHours
-            elif time_entry.date.weekday() == 4:
-                time_entry_row[row_id]['fridayHours'] += time_entry.durationInHours
-            elif time_entry.date.weekday() == 5:
-                time_entry_row[row_id]['saturdayHours'] += time_entry.durationInHours
-            elif time_entry.date.weekday() == 6:
-                time_entry_row[row_id]['sundayHours'] += time_entry.durationInHours
-
-        for comment in comments:
-            row_id = str(comment.rowId)
-
-            time_entry_row[row_id]['comment'] = comment.text
-
-
-        form_data = []
-        for time_entry_row_id in time_entry_row:
-            # get data without keys
-            form_data.append(time_entry_row[time_entry_row_id])
-
-
-        TimeEntryFormSet = formset_factory(TimeEntryForm,extra=0)
+        TimeEntryFormSet = formset_factory(TimeEntryForm,formset=BaseTimeEntryFormSet,extra=0)
         if request.method == 'POST':
+            if 'open' in request.POST:
+                week_entry, created = WeekEntry.objects.get_or_create(employee=employee.email,weekId=weekId,defaults={'complete':False})
+                week_entry.complete = False
+                week_entry.save()
+
+                # redirect after post
+                return redirect('/?weekId=%s&saved=%s' % (weekId, 'open'))
+
+
             time_entry_formset = TimeEntryFormSet(request.POST, request.FILES)
             if time_entry_formset.is_valid():
                 # do something with the cleaned_data on the formsets.
-                #print str(time_entry_formset)
 
+                new_time_entries = []
+                new_comments = []
+                i = 0
+                for form in time_entry_formset:
 
-                pass
+                    save_row = False
+
+                    if form.cleaned_data['sundayHours'] > decimal.Decimal('0'):
+                        save_row = True
+                        new_time_entries.append(
+                            TimeEntry(
+                                date=sunDate,
+                                taskDefinitionId=form.cleaned_data['taskDefinitionId'],
+                                durationInHours=form.cleaned_data['sundayHours'],
+                                rowId=i,
+                                weekId=weekId,
+                                employee=employee.email
+                            )
+                        )
+                    if form.cleaned_data['mondayHours'] > decimal.Decimal('0'):
+                        save_row = True
+                        new_time_entries.append(
+                            TimeEntry(
+                                date=monDate,
+                                taskDefinitionId=form.cleaned_data['taskDefinitionId'],
+                                durationInHours=form.cleaned_data['mondayHours'],
+                                rowId=i,
+                                weekId=weekId,
+                                employee=employee.email
+                            )
+                        )
+                    if form.cleaned_data['tuesdayHours'] > decimal.Decimal('0'):
+                        save_row = True
+                        new_time_entries.append(
+                            TimeEntry(
+                                date=tueDate,
+                                taskDefinitionId=form.cleaned_data['taskDefinitionId'],
+                                durationInHours=form.cleaned_data['tuesdayHours'],
+                                rowId=i,
+                                weekId=weekId,
+                                employee=employee.email
+                            )
+                        )
+                    if form.cleaned_data['wednesdayHours'] > decimal.Decimal('0'):
+                        save_row = True
+                        new_time_entries.append(
+                            TimeEntry(
+                                date=wedDate,
+                                taskDefinitionId=form.cleaned_data['taskDefinitionId'],
+                                durationInHours=form.cleaned_data['wednesdayHours'],
+                                rowId=i,
+                                weekId=weekId,
+                                employee=employee.email
+                            )
+                        )
+                    if form.cleaned_data['thursdayHours'] > decimal.Decimal('0'):
+                        save_row = True
+                        new_time_entries.append(
+                            TimeEntry(
+                                date=thuDate,
+                                taskDefinitionId=form.cleaned_data['taskDefinitionId'],
+                                durationInHours=form.cleaned_data['thursdayHours'],
+                                rowId=i,
+                                weekId=weekId,
+                                employee=employee.email
+                            )
+                        )
+                    if form.cleaned_data['fridayHours'] > decimal.Decimal('0'):
+                        save_row = True
+                        new_time_entries.append(
+                            TimeEntry(
+                                date=friDate,
+                                taskDefinitionId=form.cleaned_data['taskDefinitionId'],
+                                durationInHours=form.cleaned_data['fridayHours'],
+                                rowId=i,
+                                weekId=weekId,
+                                employee=employee.email
+                            )
+                        )
+                    if form.cleaned_data['saturdayHours'] > decimal.Decimal('0'):
+                        save_row = True
+                        new_time_entries.append(
+                            TimeEntry(
+                                date=satDate,
+                                taskDefinitionId=form.cleaned_data['taskDefinitionId'],
+                                durationInHours=form.cleaned_data['saturdayHours'],
+                                rowId=i,
+                                weekId=weekId,
+                                employee=employee.email
+                            )
+                        )
+
+                    if save_row:
+                        if form.cleaned_data['comment']:
+                            new_comments.append(
+                                Comment(employee=employee.email, weekId=weekId, rowId=i, text=form.cleaned_data['comment'])
+                            )
+
+                        i += 1
+
+                print new_time_entries
+                #TODO save new_time_entries
+                #TODO save new_comments
+
+                if 'complete' in request.POST:
+                    week_entry, created = WeekEntry.objects.get_or_create(employee=employee.email,weekId=weekId,defaults={'complete':True})
+                    week_entry.complete = True
+                    week_entry.save()
+
+                # redirect after post
+                return redirect('/?weekId=%s&saved=%s' % (weekId, 'saved'))
         else:
+            time_entries = TimeEntry.objects(employee=employee.email, weekId=weekId)
+            comments = Comment.objects(employee=employee.email, weekId=weekId)
+
+            tasks_map = get_tasks_map()
+
+            time_entry_row = {}
+            for time_entry in time_entries:
+                task_id = str(time_entry.taskDefinitionId)
+                row_id = str(time_entry.rowId)
+
+                if row_id not in time_entry_row:
+                    time_entry_row[row_id] = {
+                        'taskDefinitionId': task_id,
+                        'rowId': row_id,
+                        'sundayHours': decimal.Decimal('0'),
+                        'mondayHours': decimal.Decimal('0'),
+                        'tuesdayHours': decimal.Decimal('0'),
+                        'wednesdayHours': decimal.Decimal('0'),
+                        'thursdayHours': decimal.Decimal('0'),
+                        'fridayHours': decimal.Decimal('0'),
+                        'saturdayHours': decimal.Decimal('0')
+                    }
+
+                if time_entry.date.weekday() == 0:
+                    time_entry_row[row_id]['mondayHours'] += time_entry.durationInHours
+                elif time_entry.date.weekday() == 1:
+                    time_entry_row[row_id]['tuesdayHours'] += time_entry.durationInHours
+                elif time_entry.date.weekday() == 2:
+                    time_entry_row[row_id]['wednesdayHours'] += time_entry.durationInHours
+                elif time_entry.date.weekday() == 3:
+                    time_entry_row[row_id]['thursdayHours'] += time_entry.durationInHours
+                elif time_entry.date.weekday() == 4:
+                    time_entry_row[row_id]['fridayHours'] += time_entry.durationInHours
+                elif time_entry.date.weekday() == 5:
+                    time_entry_row[row_id]['saturdayHours'] += time_entry.durationInHours
+                elif time_entry.date.weekday() == 6:
+                    time_entry_row[row_id]['sundayHours'] += time_entry.durationInHours
+
+            for comment in comments:
+                row_id = str(comment.rowId)
+
+                time_entry_row[row_id]['comment'] = comment.text
+
+
+            form_data = []
+            for time_entry_row_id in time_entry_row:
+                # get data without keys
+                form_data.append(time_entry_row[time_entry_row_id])
+
             time_entry_formset = TimeEntryFormSet(initial=form_data)
+
+
+        is_complete = len(WeekEntry.objects(employee=employee.email,weekId=weekId,complete=True))
 
 
         return render_to_response('index.html', {
@@ -281,6 +402,7 @@ def index(request):
             'prev_weekId': get_prev_weekId(weekId),
             'next_weekId': get_next_weekId(weekId),
             'tasks_map': tasks_map,
+            'is_complete': is_complete,
             'sunTitle': sunDate.strftime("%-m/%-d"),
             'monTitle': monDate.strftime("%-m/%-d"),
             'tueTitle': tueDate.strftime("%-m/%-d"),

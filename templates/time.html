@@ -1,20 +1,18 @@
 {% extends "base.html" %}
 {% block title %}Manage Time{% endblock %}
 {% block content %}
-  {% if request.session.employee.admin == True %}
-    <nav class="row">
-      <dl class="sub-nav">
-        <dt>Manage:</dt>
-        <dd><a href="/employee">Employees</a></dd>
-        <dd><a href="/customer">Customers</a></dd>
-        <dd><a href="/client">Clients</a></dd>
-        <dd><a href="/project">Projects</a></dd>
-        <dd><a href="/task">Tasks</a></dd>
-        <dd><a href="/pto">PTO</a></dd>
-        <dd class="active"><a href="/time">Time</a></dd>
-      </dl>
-    </nav>
-  {% endif %}
+  <nav class="row">
+    <dl class="sub-nav">
+      <dt>Manage:</dt>
+      <dd><a href="/employee">Employees</a></dd>
+      <dd><a href="/customer">Customers</a></dd>
+      <dd><a href="/client">Clients</a></dd>
+      <dd><a href="/project">Projects</a></dd>
+      <dd><a href="/task">Tasks</a></dd>
+      <dd><a href="/pto">PTO</a></dd>
+      <dd class="active"><a href="/time">Time</a></dd>
+    </dl>
+  </nav>
 
 	<div class="row manage-time">
 		<div class="large-5 columns">

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+  {% if request.session.employee.admin == True %}
+    <nav class="row">
+      <dl class="sub-nav">
+        <dt>Manage:</dt>
+        <dd><a href="/employee">Employees</a></dd>
+        <dd><a href="/customer">Customers</a></dd>
+        <dd><a href="/client">Clients</a></dd>
+        <dd><a href="/project">Projects</a></dd>
+        <dd><a href="/task">Tasks</a></dd>
+        <dd><a href="/pto">PTO</a></dd>
+        <dd><a href="/time">Time</a></dd>
+      </dl>
+    </nav>
+  {% endif %}
+
+  <section>
+    <div class="row">
+        <h4>Paid Time Off: {{ year }}</h4>
+    </div>
+
+    <div class="row">
+      <div class="large-16 columns">
+        <table class="large-16">
+          <thead>
+            <tr>
+              <th class="large-1">Name</th>
+              <th class="large-1 text-center">Jan</th>
+              <th class="large-1 text-center">Feb</th>
+              <th class="large-1 text-center">Mar</th>
+              <th class="large-1 text-center">Apr</th>
+              <th class="large-1 text-center">May</th>
+              <th class="large-1 text-center">Jun</th>
+              <th class="large-1 text-center">Jul</th>
+              <th class="large-1 text-center">Aug</th>
+              <th class="large-1 text-center">Sep</th>
+              <th class="large-1 text-center">Oct</th>
+              <th class="large-1 text-center">Nov</th>
+              <th class="large-1 text-center">Dec</th>
+              <th class="large-1 text-center">Used</th>
+              <th class="large-1 text-center">Allocated</th>
+              <th class="large-1 text-center">Available</th>
+            </tr>
+          </thead>
+
+          <tbody>
+          {% for item in pto %}
+            <tr class="item">
+              <td class="large-1">{{ item.task.name }}</td>
+              <td class="large-1 text-center">1</td>
+              <td class="large-1 text-center">2</td>
+              <td class="large-1 text-center">3</td>
+              <td class="large-1 text-center">4</td>
+              <td class="large-1 text-center">5</td>
+              <td class="large-1 text-center">6</td>
+              <td class="large-1 text-center">7</td>
+              <td class="large-1 text-center">8</td>
+              <td class="large-1 text-center">9</td>
+              <td class="large-1 text-center">10</td>
+              <td class="large-1 text-center">11</td>
+              <td class="large-1 text-center">12</td>
+              <td class="large-1 text-center">0</td>
+              <td class="large-1 text-center">{{ item.pto.hours }}</td>
+              <td class="large-1 text-center">0</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+{% endblock %}
+
+{% block extrabody %}
+    <script>
+
+    </script>
+{% endblock %}

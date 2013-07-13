@@ -450,6 +450,42 @@ def index(request):
         }, context_instance=RequestContext(request))
 
 
+@login_required
+def dashboard(request):
+    employee = get_employee(request)
+
+    if 'year' not in request.REQUEST or not request.REQUEST['year']:
+        date = datetime.datetime.now()
+        return redirect('/dashboard/?year=' + str(date.year))
+    else:
+        year = request.REQUEST['year']    
+
+        ptos = []
+
+        task_map = {}
+        for task in TaskDefinition.objects(pto=True):
+            task_map[task.id] = task
+
+
+        for task_id in task_map.keys():
+            pto = PaidTimeOff.objects(year=year,employee=employee.email,taskDefinitionId=task_id)
+
+            if len(pto) > 0:
+                item = {
+                    'pto': pto[0],
+                    'task': task_map[task_id]
+                }
+
+                ptos.append(item)
+
+        params = {
+            'year': year,
+            'pto': ptos
+        }
+
+        return render_to_response('dashboard.html', params, context_instance=RequestContext(request))
+
+
 
 @login_required
 def manage_time(request):

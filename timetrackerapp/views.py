@@ -330,9 +330,20 @@ def index(request):
                         i += 1
 
                 print new_time_entries
-                #TODO save new_time_entries
-                #TODO save new_comments
 
+                # remove time entries for this employee and weekId
+                TimeEntry.objects(employee=employee.email, weekId=weekId).delete()
+                # save new_time_entries
+                if len(new_time_entries) > 0:
+                    TimeEntry.objects.insert(new_time_entries)
+
+                # remove comments for this employee and weekId
+                Comment.objects(employee=employee.email, weekId=weekId).delete()
+                # save new_comments
+                if len(new_comments) > 0:
+                    Comment.objects.insert(new_comments)
+
+                # check if we are completing the week
                 if 'complete' in request.POST:
                     week_entry, created = WeekEntry.objects.get_or_create(employee=employee.email,weekId=weekId,defaults={'complete':True})
                     week_entry.complete = True
@@ -346,13 +357,13 @@ def index(request):
 
             tasks_map = get_tasks_map()
 
-            time_entry_row = {}
+            time_entry_rows = {}
             for time_entry in time_entries:
                 task_id = str(time_entry.taskDefinitionId)
                 row_id = str(time_entry.rowId)
 
-                if row_id not in time_entry_row:
-                    time_entry_row[row_id] = {
+                if row_id not in time_entry_rows:
+                    time_entry_rows[row_id] = {
                         'taskDefinitionId': task_id,
                         'rowId': row_id,
                         'sundayHours': decimal.Decimal('0'),
@@ -365,30 +376,27 @@ def index(request):
                     }
 
                 if time_entry.date.weekday() == 0:
-                    time_entry_row[row_id]['mondayHours'] += time_entry.durationInHours
+                    time_entry_rows[row_id]['mondayHours'] += time_entry.durationInHours
                 elif time_entry.date.weekday() == 1:
-                    time_entry_row[row_id]['tuesdayHours'] += time_entry.durationInHours
+                    time_entry_rows[row_id]['tuesdayHours'] += time_entry.durationInHours
                 elif time_entry.date.weekday() == 2:
-                    time_entry_row[row_id]['wednesdayHours'] += time_entry.durationInHours
+                    time_entry_rows[row_id]['wednesdayHours'] += time_entry.durationInHours
                 elif time_entry.date.weekday() == 3:
-                    time_entry_row[row_id]['thursdayHours'] += time_entry.durationInHours
+                    time_entry_rows[row_id]['thursdayHours'] += time_entry.durationInHours
                 elif time_entry.date.weekday() == 4:
-                    time_entry_row[row_id]['fridayHours'] += time_entry.durationInHours
+                    time_entry_rows[row_id]['fridayHours'] += time_entry.durationInHours
                 elif time_entry.date.weekday() == 5:
-                    time_entry_row[row_id]['saturdayHours'] += time_entry.durationInHours
+                    time_entry_rows[row_id]['saturdayHours'] += time_entry.durationInHours
                 elif time_entry.date.weekday() == 6:
-                    time_entry_row[row_id]['sundayHours'] += time_entry.durationInHours
+                    time_entry_rows[row_id]['sundayHours'] += time_entry.durationInHours
 
             for comment in comments:
                 row_id = str(comment.rowId)
 
-                time_entry_row[row_id]['comment'] = comment.text
+                time_entry_rows[row_id]['comment'] = comment.text
 
 
-            form_data = []
-            for time_entry_row_id in time_entry_row:
-                # get data without keys
-                form_data.append(time_entry_row[time_entry_row_id])
+            form_data = sorted(time_entry_rows.values(), key=lambda row: row['rowId'])
 
             time_entry_formset = TimeEntryFormSet(initial=form_data)
 

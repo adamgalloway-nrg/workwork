@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Non-Complete-By-Date_subreport1" language="groovy" pageWidth="572" pageHeight="752" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="2b23f00c-cc30-4494-8f88-8f14bf1e1bec">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="employee" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="employee_find_query" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[$P{employee} == null || $P{employee}.isEmpty() ? "this.key != null" : "this.key == \""+ $P{employee} + "\""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="week_id" class="java.lang.Integer" isForPrompting="false"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/home/adam/workspaces/python-projects/timetracker/timetracker/reports/"]]></defaultValueExpression>
+	</parameter>
+	<queryString language="MongoDbQuery">
+		<![CDATA[{
+'collectionName': 'employee',
+'findQuery': {'$where': '$P!{employee_find_query} && this.active == true' }
+}]]>
+	</queryString>
+	<field name="_id" class="org.bson.types.ObjectId"/>
+	<field name="active" class="java.lang.Boolean"/>
+	<field name="admin" class="java.lang.Boolean"/>
+	<field name="key" class="java.lang.String"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="startDate" class="java.util.Date"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="24" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="5ff49833-96bd-4466-9ba5-7e15049b165d" x="92" y="4" width="255" height="20"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Employee]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="b6b4ffec-e29a-41b3-8e81-163f482013aa" x="347" y="4" width="225" height="20"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Complete?]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<frame>
+				<reportElement uuid="bf2709d0-016d-46b2-81fe-d286a4ab87f7" mode="Opaque" x="92" y="0" width="480" height="20" backcolor="#E2E2E2">
+					<printWhenExpression><![CDATA[new Boolean( $V{PAGE_COUNT}.intValue() % 2 == 0 )]]></printWhenExpression>
+				</reportElement>
+			</frame>
+			<textField>
+				<reportElement uuid="880056d9-01f7-44b6-8286-c31d40dcbf52" x="92" y="0" width="255" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<subreport>
+				<reportElement uuid="942118c6-7978-4044-a5e7-1fffe759a060" x="347" y="0" width="225" height="20"/>
+				<subreportParameter name="week_id">
+					<subreportParameterExpression><![CDATA[$P{week_id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="employee">
+					<subreportParameterExpression><![CDATA[$F{key}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA["repo:Non-Complete-By-Date_subreport1_subreport1.jrxml"]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+</jasperReport>

@@ -1,0 +1,20 @@
+
+mongodump --db timetracker --collection client
+mongodump --db timetracker --collection comment
+mongodump --db timetracker --collection customer
+mongodump --db timetracker --collection employee
+mongodump --db timetracker --collection paid_time_off
+mongodump --db timetracker --collection project
+mongodump --db timetracker --collection task_definition
+mongodump --db timetracker --collection time_entry
+mongodump --db timetracker --collection week_entry
+
+mongorestore --db timetracker --collection client dump/timetracker/client.bson
+mongorestore --db timetracker --collection comment dump/timetracker/comment.bson
+mongorestore --db timetracker --collection customer dump/timetracker/customer.bson
+mongorestore --db timetracker --collection employee dump/timetracker/employee.bson
+mongorestore --db timetracker --collection paid_time_off dump/timetracker/paid_time_off.bson
+mongorestore --db timetracker --collection project dump/timetracker/project.bson
+mongorestore --db timetracker --collection task_definition dump/timetracker/task_definition.bson
+mongorestore --db timetracker --collection time_entry dump/timetracker/time_entry.bson
+mongorestore --db timetracker --collection week_entry dump/timetracker/week_entry.bson

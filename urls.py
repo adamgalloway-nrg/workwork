@@ -47,6 +47,6 @@ urlpatterns = patterns('',
     #url(r'^admin/', include(admin.site.urls)),
     #url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'plus/login.html'}),
     
-    url(r'', include(service_api.urls)),
+    #url(r'', include(service_api.urls)),
 )
 

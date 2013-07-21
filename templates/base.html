@@ -30,6 +30,18 @@
     <!--
     <script src="{{STATIC_URL}}js/foundation.min.js"></script>
     -->
+    <script>
+    $(function(){
+       $('#logout').click(function(event) {
+        
+          var callback = function(){
+             window.location = 'https://accounts.google.com/Logout';
+          };
+
+          $.ajax({type:'POST', url: '/logout/', success: callback, error: callback });
+       });
+    });
+    </script> 
 
     {% autoescape off %}
       {% block extrahead %}
@@ -51,7 +63,7 @@
                     <li>
                         <form method="POST" action="/logout/">
                         {% csrf_token %}
-                        <a onclick="this.form.submit();return false;">Sign Out</a>
+                         <a id="logout">Sign Out</a>
                         </form>
                     </li>
                 </ul>

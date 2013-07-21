@@ -191,7 +191,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 # load secrets from json
-json_data = open('client_secrets.json')
+json_data = open(os.path.join(APP_DIR, 'client_secrets.json'))
 client_secrets = json.load(json_data)
 json_data.close()
 

@@ -240,8 +240,9 @@ def index(request):
 
         sunDate, monDate, tueDate, wedDate, thuDate, friDate, satDate = get_week_dates(weekId)
 
+        tasks_map = get_tasks_map()
 
-        TimeEntryFormSet = formset_factory(TimeEntryForm,formset=BaseTimeEntryFormSet,extra=0)
+        TimeEntryFormSet = formset_factory(TimeEntryForm,formset=BaseTimeEntryFormSet,extra=0,can_delete=True)
         if request.method == 'POST':
             if 'open' in request.POST:
                 week_entry, created = WeekEntry.objects.get_or_create(employee=employee.email,weekId=weekId,defaults={'complete':False})
@@ -253,6 +254,7 @@ def index(request):
 
 
             time_entry_formset = TimeEntryFormSet(request.POST, request.FILES)
+
             if time_entry_formset.is_valid():
                 # do something with the cleaned_data on the formsets.
 
@@ -260,6 +262,9 @@ def index(request):
                 new_comments = []
                 i = 0
                 for form in time_entry_formset:
+
+                    if form in time_entry_formset.deleted_forms:
+                        continue
 
                     save_row = False
 
@@ -381,8 +386,6 @@ def index(request):
         else:
             time_entries = TimeEntry.objects(employee=employee.email, weekId=weekId)
             comments = Comment.objects(employee=employee.email, weekId=weekId)
-
-            tasks_map = get_tasks_map()
 
             time_entry_rows = {}
             for time_entry in time_entries:
@@ -533,6 +536,9 @@ def manage_time(request):
                 new_comments = []
                 i = 0
                 for form in time_entry_formset:
+
+                    if form in time_entry_formset.deleted_forms:
+                        continue
 
                     save_row = False
 

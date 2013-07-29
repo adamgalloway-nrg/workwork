@@ -20,6 +20,8 @@ class BaseTimeEntryFormSet(BaseFormSet):
         satTotal = decimal.Decimal('0')
 
         for form in self.forms:
+            if form in self.deleted_forms:
+                continue
             # add up hours for each day
             sunTotal += form.cleaned_data['sundayHours']
             monTotal += form.cleaned_data['mondayHours']
@@ -75,6 +77,8 @@ class TimeEntryForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(TimeEntryForm, self).clean()
+
+        print cleaned_data
 
         task_id_string = cleaned_data['taskDefinitionId']
 

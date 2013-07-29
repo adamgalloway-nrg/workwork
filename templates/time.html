@@ -92,7 +92,7 @@
           			<div class="task-description">{% get_task_desc f.taskDefinitionId.value %} {{ f.rowId.errors }}</div>
           		</div>
               <div class="large-2 columns text-right">
-                <span class="delete" onclick="deletEntry(this);">[X]</span>
+                <span class="delete" onclick="deletEntry(this, {{ forloop.counter0 }});">[X]</span>
               </div>
               {{ f.taskDefinitionId }}
           		{{ f.rowId }}
@@ -410,16 +410,17 @@
     });
 
     // setup removing of rows
-    function deletEntry(btn) {
+    function deletEntry(btn, formId) {
       {% if is_complete != True %}
       var entryRow = $(btn).parents('div.entry-row');
       //var taskName = $('div.task-name', entryRow).text();
       if (confirm('Are you sure you want to delete this row?')) {
         console.log('deleting');
-        entryRow.remove();
+        entryRow.hide();
+        entryRow.append('<input type="hidden" name="form-' + formId + '-DELETE" value="True" />');
 
         // set form count to actual count
-        $('#id_form-TOTAL_FORMS').val($('div.entry-row').length);
+        //$('#id_form-TOTAL_FORMS').val($('div.entry-row').length);
 
         inputDirty = true;
 

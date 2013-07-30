@@ -22,12 +22,14 @@
 
     {% if incomplete_week_count > 0 %}
     <div class="row">
-        <h4>You Have Incomplete Weeks</h4>
+        <h4>You have incomplete weeks</h4>
     </div>
     <div class="row">
+        <div class="large-16 columns">
         {% for week in incomplete_weeks %}
         <h6>Please complete the week of <span style="color: #ef2f33;">{{ week }}</span></h6>
         {% endfor %}
+        </div>
     </div>
       <div class="row">
         &nbsp;
@@ -36,7 +38,7 @@
 
 
     <div class="row">
-        <h4>Your Paid Time Off: {{ year }}</h4>
+        <h4>Your PTO for {{ year }}</h4>
     </div>
 
     <div class="row">

@@ -45,6 +45,12 @@
   <form method="POST" action="/time/?employee={{ employee|urlencode }}&weekId={{ weekId }}">
     {% csrf_token %}
 
+    {% if is_complete == True %}
+    <div class="row complete">
+      <small>This week is Complete.</small>
+    </div>
+    {% endif %}
+
     {% if time_entry_formset.non_form_errors %}
     <div class="row error">
       <small>{{ time_entry_formset.non_form_errors }}</small>
@@ -176,18 +182,6 @@
           <div class="large-2 columns grand-total"></div>
         </div>
 
-        {% if is_complete == True %}
-
-        <div class="row controls-row manage-time">
-          <div class="large-16 columns text-right">
-            <button  class="small radius" type="submit" name="open" id="open-btn">Open</button>
-          </div>
-        </div>
-        <script>
-          $('input[type="text"]').attr('disabled','disabled');
-        </script>
-
-        {% else %}
 
         <div class="row controls-row manage-time">
           <div class="large-11 columns">
@@ -205,11 +199,10 @@
           <div class="large-2 columns"><button class="small radius" type="button" id="add-btn">Add</button></div>
           <div class="large-3 columns text-right">
             <button  class="small radius" type="submit" name="save" onclick="inputDirty = false;" id="save-btn">Save</button>
-            <button  class="small radius" type="submit" name="complete" onclick="inputDirty = false;" id="complete-btn">Complete</button>
           </div>
         </div>
 
-        {% endif %}
+        
       </div>
     </section>
 

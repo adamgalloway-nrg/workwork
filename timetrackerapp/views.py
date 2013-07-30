@@ -141,6 +141,9 @@ def get_tasks_map():
     else:
         tasks_map = {}
         for task in TaskDefinition.objects.order_by('name'):
+            if task.disabled == True:
+                continue
+                
             task_group = get_task_description(task)
             if task_group not in tasks_map:
                 tasks_map[task_group] = []
@@ -516,6 +519,7 @@ def manage_time(request):
 
         sunDate, monDate, tueDate, wedDate, thuDate, friDate, satDate = get_week_dates(weekId)
 
+        tasks_map = get_tasks_map()
 
         TimeEntryFormSet = formset_factory(TimeEntryForm,formset=BaseTimeEntryFormSet,extra=0)
         if request.method == 'POST':
@@ -660,8 +664,6 @@ def manage_time(request):
         else:
             time_entries = TimeEntry.objects(employee=employee.email, weekId=weekId)
             comments = Comment.objects(employee=employee.email, weekId=weekId)
-
-            tasks_map = get_tasks_map()
 
             time_entry_rows = {}
             for time_entry in time_entries:

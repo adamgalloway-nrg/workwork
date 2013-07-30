@@ -131,6 +131,17 @@ div.entry-row:nth-of-type(odd) div.comment-row { border-bottom: 1px dotted #dddd
 	color: white;
 }
 
+.complete small, small.complete {
+	display: block;
+	padding: 0.375em 0.25em;
+	margin-top: -1.3125em;
+	margin-bottom: 1em;
+	font-size: 0.75em;
+	font-weight: bold;
+	background: #e564a5;
+	color: white;
+}
+
 
 .ui-datepicker-calendar { border: solid 1px #fff; }
 

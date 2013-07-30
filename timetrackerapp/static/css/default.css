@@ -1,8 +1,14 @@
 
 header { background-color: #138ec0; height: 40px; margin-bottom: 10px; color: #FFF; }
 
-header img { height: 40px; padding: 5px; }
-header img:hover { background-color: #0F729A; }
+header img, header .dashboard { height: 40px; padding: 5px; font-size: 0.8em; }
+header img:hover, header .dashboard:hover { background-color: #0F729A; }
+
+header .dashboard {
+	vertical-align: middle;
+	line-height: 40px;
+	padding: 0 5px;
+}
 
 header div.right-controls { font-size: 0.8em; }
 
@@ -193,3 +199,14 @@ thead.sub-header th { font-weight: normal; font-style: italic; }
 .manage-time button { background-color: #e564a5; } 
 
 .preloader { top: 290px; }
+
+.alert {
+	background-color: #ef2f33;
+	color: #fff;
+	border-radius: 50%;
+	min-width: 20px;
+	min-height: 20px;
+	display: inline-block;
+	text-align: center;
+	line-height: 20px;
+}

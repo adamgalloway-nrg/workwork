@@ -19,8 +19,24 @@
   {% endif %}
 
   <section>
+
+    {% if incomplete_week_count > 0 %}
     <div class="row">
-        <h4>Paid Time Off: {{ year }}</h4>
+        <h4>You Have Incomplete Weeks</h4>
+    </div>
+    <div class="row">
+        {% for week in incomplete_weeks %}
+        <h6>Please complete the week of <span style="color: #ef2f33;">{{ week }}</span></h6>
+        {% endfor %}
+    </div>
+      <div class="row">
+        &nbsp;
+    </div>
+    {% endif %}
+
+
+    <div class="row">
+        <h4>Your Paid Time Off: {{ year }}</h4>
     </div>
 
     <div class="row">
@@ -51,21 +67,21 @@
           {% for item in pto %}
             <tr class="item">
               <td class="large-1">{{ item.task.name }}</td>
-              <td class="large-1 text-center">1</td>
-              <td class="large-1 text-center">2</td>
-              <td class="large-1 text-center">3</td>
-              <td class="large-1 text-center">4</td>
-              <td class="large-1 text-center">5</td>
-              <td class="large-1 text-center">6</td>
-              <td class="large-1 text-center">7</td>
-              <td class="large-1 text-center">8</td>
-              <td class="large-1 text-center">9</td>
-              <td class="large-1 text-center">10</td>
-              <td class="large-1 text-center">11</td>
-              <td class="large-1 text-center">12</td>
-              <td class="large-1 text-center">0</td>
+              <td class="large-1 text-center">{{ item.jan }}</td>
+              <td class="large-1 text-center">{{ item.feb }}</td>
+              <td class="large-1 text-center">{{ item.mar }}</td>
+              <td class="large-1 text-center">{{ item.apr }}</td>
+              <td class="large-1 text-center">{{ item.may }}</td>
+              <td class="large-1 text-center">{{ item.jun }}</td>
+              <td class="large-1 text-center">{{ item.jul }}</td>
+              <td class="large-1 text-center">{{ item.aug }}</td>
+              <td class="large-1 text-center">{{ item.sep }}</td>
+              <td class="large-1 text-center">{{ item.oct }}</td>
+              <td class="large-1 text-center">{{ item.nov }}</td>
+              <td class="large-1 text-center">{{ item.dec }}</td>
+              <td class="large-1 text-center">{{ item.used }}</td>
               <td class="large-1 text-center">{{ item.pto.hours }}</td>
-              <td class="large-1 text-center">0</td>
+              <td class="large-1 text-center">{{ item.left }}</td>
             </tr>
           {% endfor %}
           </tbody>

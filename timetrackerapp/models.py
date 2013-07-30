@@ -41,7 +41,7 @@ class PaidTimeOff(Document):
 	employee = EmailField(max_length=120, required=True)
 	year = LongField(required=True)
 	taskDefinitionId = ObjectIdField(required=True)
-	hours = DecimalField(min_value=0,force_string=True,required=True)
+	hours = DecimalField(min_value=0,required=True)
 
 class Project(Document):
 	#customerName,contract,clientId,id,customerId,clientName,name
@@ -75,7 +75,7 @@ class TimeEntry(Document):
 	weekId = LongField(required=True)
 	taskDefinitionId = ObjectIdField(required=True)
 	date = DateTimeField(required=True)
-	durationInHours = DecimalField(min_value=0,force_string=True,required=True)
+	durationInHours = DecimalField(min_value=0,required=True)
 
 class WeekEntry(Document):
 	meta = {'collection': 'week_entry'}

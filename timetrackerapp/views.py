@@ -452,8 +452,10 @@ def index(request):
             'thuTitle': thuDate.strftime("%-m/%-d"),
             'friTitle': friDate.strftime("%-m/%-d"),
             'satTitle': satDate.strftime("%-m/%-d"),
-            'rangeTitle': get_range_title(sunDate, satDate)
+            'rangeTitle': get_range_title(sunDate, satDate),
+            'incomplete_week_count': get_incomplete_week_count(employee)
         }, context_instance=RequestContext(request))
+
 
 
 @login_required
@@ -464,7 +466,21 @@ def dashboard(request):
         date = datetime.datetime.now()
         return redirect('/dashboard/?year=' + str(date.year))
     else:
-        year = request.REQUEST['year']    
+        year = int(request.REQUEST['year'])
+
+        janFirst = datetime.date(year, 1, 1)
+        febFirst = datetime.date(year, 2, 1)
+        marFirst = datetime.date(year, 3, 1)
+        aprFirst = datetime.date(year, 4, 1)
+        mayFirst = datetime.date(year, 5, 1)
+        junFirst = datetime.date(year, 6, 1)
+        julFirst = datetime.date(year, 7, 1)
+        augFirst = datetime.date(year, 8, 1)
+        sepFirst = datetime.date(year, 9, 1)
+        octFirst = datetime.date(year, 10, 1)
+        novFirst = datetime.date(year, 11, 1)
+        decFirst = datetime.date(year, 12, 1)
+
 
         ptos = []
 
@@ -477,19 +493,87 @@ def dashboard(request):
             pto = PaidTimeOff.objects(year=year,employee=employee.email,taskDefinitionId=task_id)
 
             if len(pto) > 0:
+
+                # look up the usage by month
                 item = {
                     'pto': pto[0],
-                    'task': task_map[task_id]
+                    'task': task_map[task_id],
+
+                    'jan': TimeEntry.objects(date__gte=janFirst,date__lt=febFirst,employee=employee.email,taskDefinitionId=task_id).sum('durationInHours'),
+                    'feb': TimeEntry.objects(date__gte=febFirst,date__lt=marFirst,employee=employee.email,taskDefinitionId=task_id).sum('durationInHours'),
+                    'mar': TimeEntry.objects(date__gte=marFirst,date__lt=aprFirst,employee=employee.email,taskDefinitionId=task_id).sum('durationInHours'),
+                    'apr': TimeEntry.objects(date__gte=aprFirst,date__lt=mayFirst,employee=employee.email,taskDefinitionId=task_id).sum('durationInHours'),
+                    'may': TimeEntry.objects(date__gte=mayFirst,date__lt=junFirst,employee=employee.email,taskDefinitionId=task_id).sum('durationInHours'),
+                    'jun': TimeEntry.objects(date__gte=junFirst,date__lt=julFirst,employee=employee.email,taskDefinitionId=task_id).sum('durationInHours'),
+                    'jul': TimeEntry.objects(date__gte=julFirst,date__lt=augFirst,employee=employee.email,taskDefinitionId=task_id).sum('durationInHours'),
+                    'aug': TimeEntry.objects(date__gte=augFirst,date__lt=sepFirst,employee=employee.email,taskDefinitionId=task_id).sum('durationInHours'),
+                    'sep': TimeEntry.objects(date__gte=sepFirst,date__lt=octFirst,employee=employee.email,taskDefinitionId=task_id).sum('durationInHours'),
+                    'oct': TimeEntry.objects(date__gte=octFirst,date__lt=novFirst,employee=employee.email,taskDefinitionId=task_id).sum('durationInHours'),
+                    'nov': TimeEntry.objects(date__gte=novFirst,date__lt=decFirst,employee=employee.email,taskDefinitionId=task_id).sum('durationInHours'),
+                    'dec': TimeEntry.objects(date__gte=decFirst,date__lt=datetime.date(year+1, 1, 1),employee=employee.email,taskDefinitionId=task_id).sum('durationInHours'),
+                    'used': TimeEntry.objects(date__gte=janFirst,date__lt=datetime.date(year+1, 1, 1),employee=employee.email,taskDefinitionId=task_id).sum('durationInHours')
                 }
+
+                item['left'] = item['pto'].hours - decimal.Decimal(item['used'])
 
                 ptos.append(item)
 
+
+        # check for incomplete weeks
+        incomplete_weeks = []
+
+        current_weekId = get_current_weekId()
+        prev_weekId_1 = get_prev_weekId(current_weekId)
+        prev_weekId_2 = get_prev_weekId(prev_weekId_1)
+        prev_weekId_3 = get_prev_weekId(prev_weekId_2)
+
+
+        is_complete_1 = len(WeekEntry.objects(employee=employee.email,weekId=prev_weekId_1,complete=True))
+        if (is_complete_1 < 1):
+            sunDate, monDate, tueDate, wedDate, thuDate, friDate, satDate = get_week_dates(prev_weekId_1)
+            incomplete_weeks.append(get_range_title(sunDate, satDate))
+
+        is_complete_2 = len(WeekEntry.objects(employee=employee.email,weekId=prev_weekId_2,complete=True))
+        if (is_complete_2 < 1):
+            sunDate, monDate, tueDate, wedDate, thuDate, friDate, satDate = get_week_dates(prev_weekId_2)
+            incomplete_weeks.append(get_range_title(sunDate, satDate))
+
+        is_complete_3 = len(WeekEntry.objects(employee=employee.email,weekId=prev_weekId_3,complete=True))
+        if (is_complete_3 < 1):
+            sunDate, monDate, tueDate, wedDate, thuDate, friDate, satDate = get_week_dates(prev_weekId_3)
+            incomplete_weeks.append(get_range_title(sunDate, satDate))
+
+
         params = {
             'year': year,
-            'pto': ptos
+            'pto': ptos,
+            'incomplete_weeks': incomplete_weeks,
+            'incomplete_week_count': get_incomplete_week_count(employee)
         }
 
         return render_to_response('dashboard.html', params, context_instance=RequestContext(request))
+
+
+def get_incomplete_week_count(employee):
+    prev_weekId_1 = get_prev_weekId(get_current_weekId())
+    prev_weekId_2 = get_prev_weekId(prev_weekId_1)
+    prev_weekId_3 = get_prev_weekId(prev_weekId_2)
+
+    count = 0
+
+    is_complete_1 = len(WeekEntry.objects(employee=employee.email,weekId=prev_weekId_1,complete=True))
+    if (is_complete_1 < 1):
+        count += 1;
+
+    is_complete_2 = len(WeekEntry.objects(employee=employee.email,weekId=prev_weekId_2,complete=True))
+    if (is_complete_2 < 1):
+        count += 1;
+
+    is_complete_3 = len(WeekEntry.objects(employee=employee.email,weekId=prev_weekId_3,complete=True))
+    if (is_complete_3 < 1):
+        count += 1;
+
+    return count;
 
 
 
@@ -729,7 +813,8 @@ def manage_time(request):
             'thuTitle': thuDate.strftime("%-m/%-d"),
             'friTitle': friDate.strftime("%-m/%-d"),
             'satTitle': satDate.strftime("%-m/%-d"),
-            'rangeTitle': get_range_title(sunDate, satDate)
+            'rangeTitle': get_range_title(sunDate, satDate),
+            'incomplete_week_count': get_incomplete_week_count(current_employee)
         }, context_instance=RequestContext(request))
 
 
@@ -799,7 +884,8 @@ def manage_customers(request):
 
     params = {
         'customers': Customer.objects,
-        'form': form
+        'form': form,
+        'incomplete_week_count': get_incomplete_week_count(employee)
     }
 
     return render_to_response('customer.html', params, context_instance=RequestContext(request))
@@ -864,7 +950,8 @@ def manage_clients(request):
 
     params = {
         'clients': Client.objects,
-        'form': form
+        'form': form,
+        'incomplete_week_count': get_incomplete_week_count(employee)
     }
 
     return render_to_response('client.html', params, context_instance=RequestContext(request))
@@ -957,7 +1044,8 @@ def manage_projects(request):
         'projects_map': get_projects_map(),
         'clients': Client.objects.order_by('name'),
         'customers': Customer.objects.order_by('name'),
-        'form': form
+        'form': form,
+        'incomplete_week_count': get_incomplete_week_count(employee)
     }
 
     return render_to_response('project.html', params, context_instance=RequestContext(request))
@@ -1047,7 +1135,8 @@ def manage_tasks(request):
     params = {
         'projects_map': get_projects_map(),
         'projects_tasks_map': get_projects_tasks_map(),
-        'form': form
+        'form': form,
+        'incomplete_week_count': get_incomplete_week_count(employee)
     }
 
     return render_to_response('task.html', params, context_instance=RequestContext(request))
@@ -1125,7 +1214,8 @@ def manage_employees(request):
 
     params = {
         'employees': Employee.objects,
-        'form': form
+        'form': form,
+        'incomplete_week_count': get_incomplete_week_count(employee)
     }
 
     return render_to_response('employee.html', params, context_instance=RequestContext(request))
@@ -1165,7 +1255,8 @@ def manage_pto(request):
             'pto_map': get_pto_map(year),
             'year': int(year),
             'prev_year': int(year) - 1,
-            'next_year': int(year) + 1
+            'next_year': int(year) + 1,
+            'incomplete_week_count': get_incomplete_week_count(employee)
         }
 
         return render_to_response('pto.html', params, context_instance=RequestContext(request))

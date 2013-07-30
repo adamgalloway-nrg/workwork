@@ -143,7 +143,7 @@ def get_tasks_map():
         for task in TaskDefinition.objects.order_by('name'):
             if task.disabled == True:
                 continue
-                
+
             task_group = get_task_description(task)
             if task_group not in tasks_map:
                 tasks_map[task_group] = []
@@ -266,7 +266,7 @@ def index(request):
                 i = 0
                 for form in time_entry_formset:
 
-                    if form in time_entry_formset.deleted_forms:
+                    if hasattr(time_entry_formset, 'deleted_forms') and form in time_entry_formset.deleted_forms:
                         continue
 
                     save_row = False
@@ -541,7 +541,7 @@ def manage_time(request):
                 i = 0
                 for form in time_entry_formset:
 
-                    if form in time_entry_formset.deleted_forms:
+                    if hasattr(time_entry_formset, 'deleted_forms') and form in time_entry_formset.deleted_forms:
                         continue
 
                     save_row = False

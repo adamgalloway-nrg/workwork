@@ -20,7 +20,7 @@ class BaseTimeEntryFormSet(BaseFormSet):
         satTotal = decimal.Decimal('0')
 
         for form in self.forms:
-            if form in self.deleted_forms:
+            if hasattr(self, 'deleted_forms') and form in self.deleted_forms:
                 continue
             # add up hours for each day
             sunTotal += form.cleaned_data['sundayHours']

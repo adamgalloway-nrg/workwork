@@ -261,7 +261,7 @@
   		// update totals
   		$('div.hours-row').each(function(){
   			var total = 0;
-  			$('div.hours input', this).each(function(){
+  			$('div.hours:visible input', this).each(function(){
           var hours = parseFloat($(this).val());
           if (!isNaN(hours)) {
   				  total += hours;
@@ -272,7 +272,7 @@
 
   		var sunTotal = 0;
   		var grandTotal = 0;
-  		$('div.sun.hours input').each(function(){
+  		$('div.sun.hours:visible input').each(function(){
   			  var hours = parseFloat($(this).val());
           if (!isNaN(hours)) {
             sunTotal += hours;
@@ -282,7 +282,7 @@
   		grandTotal += sunTotal;
 
   		var monTotal = 0;
-  		$('div.mon.hours input').each(function(){
+  		$('div.mon.hours:visible input').each(function(){
   			var hours = parseFloat($(this).val());
           if (!isNaN(hours)) {
             monTotal += hours;
@@ -292,7 +292,7 @@
   		grandTotal += monTotal;
 
   		var tueTotal = 0;
-  		$('div.tue.hours input').each(function(){
+  		$('div.tue.hours:visible input').each(function(){
   			var hours = parseFloat($(this).val());
           if (!isNaN(hours)) {
             tueTotal += hours;
@@ -302,7 +302,7 @@
   		grandTotal += tueTotal;
 
   		var wedTotal = 0;
-  		$('div.wed.hours input').each(function(){
+  		$('div.wed.hours:visible input').each(function(){
   			var hours = parseFloat($(this).val());
           if (!isNaN(hours)) {
             wedTotal += hours;
@@ -312,7 +312,7 @@
   		grandTotal += wedTotal;
 
   		var thuTotal = 0;
-  		$('div.thu.hours input').each(function(){
+  		$('div.thu.hours:visible input').each(function(){
   			var hours = parseFloat($(this).val());
           if (!isNaN(hours)) {
             thuTotal += hours;
@@ -322,7 +322,7 @@
   		grandTotal += thuTotal;
 
   		var friTotal = 0;
-  		$('div.fri.hours input').each(function(){
+  		$('div.fri.hours:visible input').each(function(){
   			var hours = parseFloat($(this).val());
           if (!isNaN(hours)) {
             friTotal += hours;
@@ -332,7 +332,7 @@
   		grandTotal += friTotal;
 
   		var satTotal = 0;
-  		$('div.sat.hours input').each(function(){
+  		$('div.sat.hours:visible input').each(function(){
   			var hours = parseFloat($(this).val());
           if (!isNaN(hours)) {
             satTotal += hours;
